@@ -1,6 +1,6 @@
 {
   "name": "@madeinlune/ngrx-json-api",
-  "version": "2.3.1-lune1",
+  "version": "2.3.1-lune2",
   "description": "A JSON API client for ngrx",
   "module": "FESM/ngrx-json-api.es5.js",
   "es2015": "FESM/ngrx-json-api.js",
@@ -8,7 +8,7 @@
   "typings": "ngrx-json-api.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abdulhaq-e/ngrx-json-api.git"
+    "url": "https://github.com/icilalune/ngrx-json-api"
   },
   "scripts": {
     "precommit": "yarn run prettier",
