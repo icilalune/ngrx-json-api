@@ -518,11 +518,11 @@ export class NgrxJsonApiEffects implements OnDestroy {
         });
 
         return this.jsonApi.operations({ operations: operations }).pipe(
-          switchMap((result): Action[] =>
+          switchMap((result: { body: { operations: any[] } }): Action[] =>
             _.zip(operations, result.body.operations).map(
               ([operation, result]): Action => {
                 const responsePayload: Payload = {
-                  jsonApiData: { data: operation.data },
+                  jsonApiData: { data: result.data },
                   query: {
                     type: operation.ref.type,
                   },
