@@ -251,6 +251,7 @@ export class NgrxJsonApi {
       ...requestOptions,
       headers: this.headers,
       observe: 'response',
+      withCredentials: this.config.requestWithCredentials,
     };
 
     if (requestOptions.method === 'GET') {

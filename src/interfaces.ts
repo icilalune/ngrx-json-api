@@ -66,6 +66,13 @@ export interface NgrxJsonApiConfig {
    * have a look at www.crnk.io that makes use of JSON PATCH to perform bulk updates.
    */
   applyEnabled?: boolean;
+  /**
+   * Allows to send/receive cookies, authorization headers with cross-site request.
+   * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials
+   *
+   * default is false
+   */
+  requestWithCredentials?: boolean;
 
   /**
    * Enable the use of JSON:API Operations extension to perform all apply steps
@@ -147,6 +154,7 @@ export interface Payload {
  * Specifies a GET query with parameters.
  */
 export interface Query {
+
   /**
    * Uniquely identifies the query in the store
    */
@@ -255,6 +263,7 @@ export interface SortingParam {
 }
 
 export interface QueryResult extends StoreQuery {
+
   /**
    * Holds the resources from the query results. The field is dynamically populated by denormalizing
    * StoreQuery.queryResults with the corresponding resources from the store.
