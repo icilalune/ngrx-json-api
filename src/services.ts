@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 
 import { Observable } from 'rxjs/Observable';
-import { map } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import 'rxjs/add/operator/finally';
 
 import { Store } from '@ngrx/store';
@@ -193,6 +193,17 @@ export class NgrxJsonApiZoneService {
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreQuery(queryId)).pipe(
         map(query => query !== null)
+      );
+  }
+
+  public isQueryLoading(
+    queryId: string
+  ): Observable<boolean> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(selectStoreQuery(queryId)).pipe(
+        filter(query => !!query),
+        map(query => query.loading)
       );
   }
 
