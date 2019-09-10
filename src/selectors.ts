@@ -110,10 +110,9 @@ export function isApplying(): (
   state: Observable<NgrxJsonApiStore>
 ) => Observable<boolean> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$
-      .map(state => {
-        return state && state.isApplying > 0;
-      });
+    return state$.map(state => {
+      return state && state.isApplying > 0;
+    });
   };
 }
 

@@ -37,7 +37,8 @@ import {
   NGRX_JSON_API_DEFAULT_ZONE,
   NgrxJsonApiConfig,
   NgrxJsonApiStore,
-  NgrxJsonApiStoreData, NgrxJsonApiStoreResources,
+  NgrxJsonApiStoreData,
+  NgrxJsonApiStoreResources,
   OneQueryResult,
   Query,
   QueryResult,
@@ -198,9 +199,7 @@ export class NgrxJsonApiZoneService {
   }
 
   public isApplying(): Observable<boolean> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(isApplying());
+    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isApplying());
   }
 
   /**
