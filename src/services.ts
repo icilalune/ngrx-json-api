@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
 import 'rxjs/add/operator/finally';
 
 import { Store } from '@ngrx/store';
@@ -12,7 +13,8 @@ import {
   selectOneQueryResult,
   selectStoreResource,
   selectStoreResources,
-  selectStoreResourcesOfType
+  selectStoreResourcesOfType,
+  selectStoreQuery
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -182,6 +184,16 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreResourcesOfType(type));
+  }
+
+  public hasQuery(
+    queryId: string
+  ): Observable<boolean> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(selectStoreQuery(queryId)).pipe(
+        map(query => query !== null)
+      );
   }
 
   /**
