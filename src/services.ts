@@ -12,6 +12,7 @@ import {
   selectOneQueryResult,
   selectStoreResource,
   selectStoreResources,
+  selectStoreResourcesOfType
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -35,7 +36,7 @@ import {
   NGRX_JSON_API_DEFAULT_ZONE,
   NgrxJsonApiConfig,
   NgrxJsonApiStore,
-  NgrxJsonApiStoreData,
+  NgrxJsonApiStoreData, NgrxJsonApiStoreResources,
   OneQueryResult,
   Query,
   QueryResult,
@@ -173,6 +174,14 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreResource(identifier));
+  }
+
+  public selectStoreResourcesOfType(
+    type: string
+  ): Observable<NgrxJsonApiStoreResources> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(selectStoreResourcesOfType(type));
   }
 
   /**
