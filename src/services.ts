@@ -12,7 +12,8 @@ import {
   selectOneQueryResult,
   selectStoreResource,
   selectStoreResources,
-  selectStoreResourcesOfType
+  selectStoreResourcesOfType,
+  isApplying,
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -194,6 +195,12 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreResources(identifiers));
+  }
+
+  public isApplying(): Observable<boolean> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(isApplying());
   }
 
   /**

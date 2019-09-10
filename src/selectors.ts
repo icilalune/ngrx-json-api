@@ -106,6 +106,17 @@ export function selectStoreResources(identifiers: ResourceIdentifier[]) {
   };
 }
 
+export function isApplying(): (
+  state: Observable<NgrxJsonApiStore>
+) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$
+      .map(state => {
+        return state && state.isApplying > 0;
+      });
+  };
+}
+
 export function selectManyQueryResult(
   queryId: string,
   denormalize?: boolean
