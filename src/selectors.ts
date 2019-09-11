@@ -63,7 +63,7 @@ export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => state && state.queries && state.queries[queryId]);
+    return state$.map(state => state && state.queries ? state.queries[queryId] : null);
   };
 }
 
