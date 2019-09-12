@@ -1813,6 +1813,22 @@ describe('generatePayload', () => {
           unchanged: 'foo',
         },
       },
+      relationships: {
+        new: {
+          data: {
+            id: 'test',
+            type: 'test-type',
+          },
+        },
+        existingEmptyToBeFilled: {
+          data: [
+            {
+              id: 'foo',
+              type: 'foo-type',
+            },
+          ],
+        },
+      },
       persistedResource: {
         id: '10',
         type: 'Article',
@@ -1822,6 +1838,12 @@ describe('generatePayload', () => {
           complexAttribute: {
             changed: 'bar',
             unchanged: 'foo',
+          },
+          existingToBeRemoved: 'oh, no !',
+        },
+        relationships: {
+          existingEmptyToBeFilled: {
+            data: [],
           },
         },
       },
@@ -1839,5 +1861,17 @@ describe('generatePayload', () => {
     expect(
       payload.jsonApiData.data.attributes.complexAttribute.unchanged
     ).toEqual('foo');
+    expect(payload.jsonApiData.data.relationships).toBeDefined();
+    expect(payload.jsonApiData.data.relationships.new).toBeDefined();
+    expect(payload.jsonApiData.data.relationships.new.data.type).toEqual(
+      'test-type'
+    );
+    expect(
+      payload.jsonApiData.data.relationships.existingEmptyToBeFilled.data[0]
+    ).toBeDefined();
+    expect(
+      payload.jsonApiData.data.relationships.existingEmptyToBeFilled.data[0]
+        .type
+    ).toEqual('foo-type');
   });
 });
