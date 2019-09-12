@@ -1800,4 +1800,44 @@ describe('generatePayload', () => {
     expect(payload.query.type).toEqual('Article');
     expect(payload.jsonApiData).not.toBeDefined();
   });
+
+  it('should generate a diff payload if diff mode is enabled', () => {
+    let resource: StoreResource = {
+      id: '10',
+      type: 'Article',
+      attributes: {
+        foo: 'bar',
+        foo2: 'baz',
+        complexAttribute: {
+          changed: 'baz',
+          unchanged: 'foo',
+        },
+      },
+      persistedResource: {
+        id: '10',
+        type: 'Article',
+        attributes: {
+          foo: 'bar',
+          foo2: 'bar',
+          complexAttribute: {
+            changed: 'bar',
+            unchanged: 'foo',
+          },
+        },
+      },
+    };
+    let payload = generatePayload(resource, 'PATCH', true);
+    expect(payload.query.id).toEqual('10');
+    expect(payload.query.type).toEqual('Article');
+    expect(payload.jsonApiData.data.id).toEqual('10');
+    expect(payload.jsonApiData.data.type).toEqual('Article');
+    expect(payload.jsonApiData.data.attributes.foo).toBeUndefined();
+    expect(payload.jsonApiData.data.attributes.foo2).toEqual('baz');
+    expect(
+      payload.jsonApiData.data.attributes.complexAttribute.changed
+    ).toEqual('baz');
+    expect(
+      payload.jsonApiData.data.attributes.complexAttribute.unchanged
+    ).toEqual('foo');
+  });
 });

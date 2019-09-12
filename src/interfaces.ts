@@ -80,6 +80,12 @@ export interface NgrxJsonApiConfig {
    */
   operationsApplyEnabled?: boolean;
   operationsUrl?: string;
+
+  /**
+   * If enabled, PATCH requests will only contains attributes and relationships
+   * that differs from the previously known persisted resource.
+   */
+  diffUpdates?: boolean;
 }
 
 export interface NgrxJsonApiState {
