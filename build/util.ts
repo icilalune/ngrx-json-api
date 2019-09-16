@@ -83,6 +83,7 @@ export function exec(
 }
 
 export function cmd(command: string, args: string[]): Promise<string> {
+  console.log(command, args ? args.join(' ') : '');
   return exec(command, args, (command: string) => command);
 }
 

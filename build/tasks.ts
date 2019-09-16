@@ -140,7 +140,7 @@ export async function copyPackageJsonFiles() {
  */
 export async function publishToRepo() {
   const SOURCE_DIR = `./dist`;
-  const REPO_URL = `git@github.com:abdulhaq-e/ngrx-json-api-builds.git`;
+  const REPO_URL = `ssh://git@gitlab.icilalune.com:10022/madeinlune/ngrx-json-api/ngrx-json-api-builds.git`;
   const REPO_DIR = `./tmp`;
   const SHA = await util.git([`rev-parse HEAD`]);
   const SHORT_SHA = await util.git([`rev-parse --short HEAD`]);
@@ -150,15 +150,21 @@ export async function publishToRepo() {
   const COMMITTER_USER_EMAIL = await util.git([
     `--no-pager show -s --format='%cE' HEAD`,
   ]);
+  const CURRENT_BRANCH =
+    process.argv.length > 2
+      ? process.argv[2]
+      : (await util.git(['rev-parse --abbrev-ref HEAD'])).trim();
 
   await util.cmd('rm -rf', [`${REPO_DIR}`]);
   await util.cmd('mkdir ', [`-p ${REPO_DIR}`]);
   await process.chdir(`${REPO_DIR}`);
   await util.git([`init`]);
   await util.git([`remote add origin ${REPO_URL}`]);
-  await util.git(['fetch origin master --depth=1']);
-  await util.git(['checkout origin/master']);
-  await util.git(['checkout -b master']);
+  try {
+    await util.git([`fetch origin ${CURRENT_BRANCH} --depth=1`]);
+    await util.git([`checkout origin/${CURRENT_BRANCH}`]);
+  } catch (e) {}
+  await util.git([`checkout -b ${CURRENT_BRANCH}`]);
   await process.chdir('../');
   await util.cmd('rm -rf', [`${REPO_DIR}/*`]);
   await util.git([`log --format="%h %s" -n 1 > ${REPO_DIR}/commit_message`]);
@@ -169,7 +175,7 @@ export async function publishToRepo() {
   await util.git(['add --all']);
   await util.git([`commit -F commit_message`]);
   await util.cmd('rm', ['commit_message']);
-  await util.git(['push origin master --force']);
+  await util.git([`push origin ${CURRENT_BRANCH} --force`]);
   await process.chdir('../');
 }
 
