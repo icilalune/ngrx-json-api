@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import { Observable } from 'rxjs/Observable';
+import { filter, map } from 'rxjs/operators';
 import 'rxjs/add/operator/finally';
 
 import { Store } from '@ngrx/store';
@@ -12,6 +13,9 @@ import {
   selectOneQueryResult,
   selectStoreResource,
   selectStoreResources,
+  selectStoreResourcesOfType,
+  isApplying,
+  selectStoreQuery
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -36,6 +40,7 @@ import {
   NgrxJsonApiConfig,
   NgrxJsonApiStore,
   NgrxJsonApiStoreData,
+  NgrxJsonApiStoreResources,
   OneQueryResult,
   Query,
   QueryResult,
@@ -175,6 +180,35 @@ export class NgrxJsonApiZoneService {
       .let(selectStoreResource(identifier));
   }
 
+  public selectStoreResourcesOfType(
+    type: string
+  ): Observable<NgrxJsonApiStoreResources> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(selectStoreResourcesOfType(type));
+  }
+
+  public hasQuery(
+    queryId: string
+  ): Observable<boolean> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(selectStoreQuery(queryId)).pipe(
+        map(query => query !== null)
+      );
+  }
+
+  public isQueryLoading(
+    queryId: string
+  ): Observable<boolean> {
+    return this.store
+      .let(selectNgrxJsonApiZone(this.zoneId))
+      .let(selectStoreQuery(queryId)).pipe(
+        filter(query => !!query),
+        map(query => query.loading)
+      );
+  }
+
   /**
    * @param identifiers of the resources
    * @returns observable of the resources
@@ -185,6 +219,10 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreResources(identifiers));
+  }
+
+  public isApplying(): Observable<boolean> {
+    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isApplying());
   }
 
   /**

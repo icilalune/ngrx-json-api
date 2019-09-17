@@ -63,7 +63,7 @@ export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => state.queries[queryId]);
+    return state$.map(state => state && state.queries ? state.queries[queryId] : null);
   };
 }
 
@@ -103,6 +103,16 @@ export function selectStoreResources(identifiers: ResourceIdentifier[]) {
         });
       })
     );
+  };
+}
+
+export function isApplying(): (
+  state: Observable<NgrxJsonApiStore>
+) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.map(state => {
+      return state && state.isApplying > 0;
+    });
   };
 }
 

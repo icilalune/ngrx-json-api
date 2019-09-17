@@ -1,6 +1,6 @@
 {
-  "name": "ngrx-json-api",
-  "version": "2.3.1",
+  "name": "@madeinlune/ngrx-json-api",
+  "version": "2.3.1-lune4",
   "description": "A JSON API client for ngrx",
   "module": "FESM/ngrx-json-api.es5.js",
   "es2015": "FESM/ngrx-json-api.js",
@@ -8,7 +8,7 @@
   "typings": "ngrx-json-api.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abdulhaq-e/ngrx-json-api.git"
+    "url": "https://github.com/icilalune/ngrx-json-api"
   },
   "scripts": {
     "precommit": "yarn run prettier",
@@ -44,6 +44,7 @@
     "@angular/core": ">=6.0.0",
     "@ngrx/effects": ">=6.1.0",
     "@ngrx/store": ">=6.1.0",
+    "deep-object-diff": "^1.1.0",
     "rxjs": "~6.2.0",
     "rxjs-compat": "~6.2.0"
   },
@@ -79,6 +80,7 @@
     "coveralls": "^3.0.0",
     "cpy-cli": "^1.0.1",
     "deep-freeze": "^0.0.1",
+    "deep-object-diff": "^1.1.0",
     "expand-range": "^2.0.1",
     "filename-regex": "^2.0.1",
     "fs-extra": "^5.0.0",
