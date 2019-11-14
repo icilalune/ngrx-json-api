@@ -175,7 +175,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
             results =>
               new LocalQuerySuccessAction(
                 {
-                  jsonApiData: {data: results},
+                  jsonApiData: { data: results },
                   query: query,
                 },
                 action.zoneId
@@ -239,7 +239,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
   refreshQueriesOnDelete$: Observable<Action> = this.actions$.pipe(
     ofType(NgrxJsonApiActionTypes.API_DELETE_SUCCESS),
     withLatestFrom(this.store, (action: ApiDeleteSuccessAction, store) => {
-      let id = {id: action.payload.query.id, type: action.payload.query.type};
+      let id = { id: action.payload.query.id, type: action.payload.query.type };
       if (!id.id || !id.type) {
         throw new Error(
           'API_DELETE_SUCCESS did not carry resource id and type information'
@@ -253,7 +253,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
           let query = state.queries[queryId];
           if (query.resultIds) {
             let needsRefresh =
-              _.findIndex(query.resultIds, function (o) {
+              _.findIndex(query.resultIds, function(o) {
                 return _.isEqual(id, o);
               }) !== -1;
 
@@ -262,7 +262,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
             if (sameIdRequested && (needsRefresh || _.isEmpty(query.errors))) {
               throw new Error(
                 'store is in invalid state, queries for deleted' +
-                ' resource should have been emptied and marked with 404 error'
+                  ' resource should have been emptied and marked with 404 error'
               );
             }
 
@@ -406,12 +406,12 @@ export class NgrxJsonApiEffects implements OnDestroy {
           };
         });
 
-        return this.jsonApi.operations({operations: operations}).pipe(
+        return this.jsonApi.operations({ operations: operations }).pipe(
           switchMap((result: { body: { operations: any[] } }): Action[] =>
             _.zip(operations, result.body.operations).map(
               ([operation, result]): Action => {
                 const responsePayload: Payload = {
-                  jsonApiData: {data: result.data},
+                  jsonApiData: { data: result.data },
                   query: {
                     type: operation.ref.type,
                   },
@@ -487,8 +487,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
     this.config = this.jsonApi.config;
   }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() {}
 
   private localQueryInitEventFor(query: Query) {
     return this.actions$.pipe(
@@ -513,7 +512,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
         return state$.map(() => Observable.throw('Unknown query'));
       } else if (query.type && query.id) {
         selected$ = state$.let(
-          selectStoreResource({type: query.type, id: query.id})
+          selectStoreResource({ type: query.type, id: query.id })
         );
       } else {
         selected$ = state$

@@ -248,8 +248,7 @@ export function getNgrxJsonApiStore(state$: Observable<any>): Observable<any> {
  * deprecated, to not use any longer
  */
 export class NgrxJsonApiSelectors {
-  constructor() {
-  }
+  constructor() {}
 
   public getNgrxJsonApiStore$(): (state$: Observable<any>) => Observable<any> {
     return (state$: Observable<any>): Observable<NgrxJsonApiStore> => {
