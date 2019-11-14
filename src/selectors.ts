@@ -63,7 +63,9 @@ export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => state && state.queries ? state.queries[queryId] : null);
+    return state$.map(
+      state => (state && state.queries ? state.queries[queryId] : null)
+    );
   };
 }
 
@@ -74,7 +76,7 @@ export function selectStoreResourcesOfType(
 ) => Observable<NgrxJsonApiStoreResources> {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$
-      .map(state => state.data)
+      .map(state => (!!state ? state.data : undefined))
       .map(data => (data ? data[type] : undefined));
   };
 }
@@ -122,7 +124,7 @@ export function selectManyQueryResult(
 ): (state: Observable<NgrxJsonApiStore>) => Observable<ManyQueryResult> {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$.map(state => {
-      let storeQuery = (state && state.queries) ? state.queries[queryId] : null;
+      let storeQuery = state && state.queries ? state.queries[queryId] : null;
       if (!storeQuery) {
         return undefined;
       }
@@ -155,7 +157,7 @@ export function selectOneQueryResult(
 ): (state: Observable<NgrxJsonApiStore>) => Observable<OneQueryResult> {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$.map(state => {
-      let storeQuery = (state && state.queries) ? state.queries[queryId] : null;
+      let storeQuery = state && state.queries ? state.queries[queryId] : null;
       if (!storeQuery) {
         return undefined;
       }
@@ -201,8 +203,7 @@ export function getNgrxJsonApiStore(state$: Observable<any>): Observable<any> {
  * deprecated, to not use any longer
  */
 export class NgrxJsonApiSelectors {
-  constructor() {
-  }
+  constructor() {}
 
   public getNgrxJsonApiStore$(): (state$: Observable<any>) => Observable<any> {
     return (state$: Observable<any>): Observable<NgrxJsonApiStore> => {

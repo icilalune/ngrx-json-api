@@ -15,7 +15,7 @@ import {
   selectStoreResources,
   selectStoreResourcesOfType,
   isApplying,
-  selectStoreQuery
+  selectStoreQuery,
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -188,25 +188,18 @@ export class NgrxJsonApiZoneService {
       .let(selectStoreResourcesOfType(type));
   }
 
-  public hasQuery(
-    queryId: string
-  ): Observable<boolean> {
+  public hasQuery(queryId: string): Observable<boolean> {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreQuery(queryId)).pipe(
-        map(query => query !== null)
-      );
+      .let(selectStoreQuery(queryId))
+      .pipe(map(query => query !== null));
   }
 
-  public isQueryLoading(
-    queryId: string
-  ): Observable<boolean> {
+  public isQueryLoading(queryId: string): Observable<boolean> {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreQuery(queryId)).pipe(
-        filter(query => !!query),
-        map(query => query.loading)
-      );
+      .let(selectStoreQuery(queryId))
+      .pipe(filter(query => !!query), map(query => query.loading));
   }
 
   /**
