@@ -370,6 +370,17 @@ export function NgrxJsonApiZoneReducer(
     case NgrxJsonApiActionTypes.COMPACT_STORE: {
       return compactStore(zone);
     }
+    case NgrxJsonApiActionTypes.CLEAR_READ_WRITE_STATUS: {
+      newZone = {
+        ...zone,
+        isCreating: 0,
+        isReading: 0,
+        isUpdating: 0,
+        isDeleting: 0,
+        isApplying: 0,
+      };
+      return newZone;
+    }
     default:
       return zone;
   }

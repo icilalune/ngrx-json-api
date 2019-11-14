@@ -13,23 +13,15 @@ import { of } from 'rxjs/observable/of';
 import 'rxjs/add/operator/concatAll';
 import {
   catchError,
-  concatAll,
   combineLatest,
-  debounceTime,
   filter,
   flatMap,
   map,
-  mapTo,
   mergeMap,
-  skip,
   switchMap,
-  switchMapTo,
-  tap,
-  take,
+  takeUntil,
   toArray,
   withLatestFrom,
-  takeWhile,
-  takeUntil,
 } from 'rxjs/operators';
 import {
   ApiApplyFailAction,
@@ -48,6 +40,8 @@ import {
   ApiPostInitAction,
   ApiPostSuccessAction,
   ApiQueryRefreshAction,
+  ClearZoneReadWriteStatus,
+  ClearZonesReadWriteStatus,
   LocalQueryFailAction,
   LocalQueryInitAction,
   LocalQuerySuccessAction,
@@ -72,15 +66,13 @@ import {
   ResourceError,
   StoreResource,
 } from './interfaces';
-import {
-  generatePayload,
-  getPendingChanges,
-  sortPendingChanges,
-  filterResources,
-} from './utils';
+import { filterResources, generatePayload, getPendingChanges, sortPendingChanges, } from './utils';
 
 @Injectable()
 export class NgrxJsonApiEffects implements OnDestroy {
+
+  private config: NgrxJsonApiConfig;
+
   @Effect()
   createResource$: Observable<Action> = this.actions$.pipe(
     ofType<ApiPostInitAction>(NgrxJsonApiActionTypes.API_POST_INIT),
@@ -166,22 +158,6 @@ export class NgrxJsonApiEffects implements OnDestroy {
     })
   );
 
-  private localQueryInitEventFor(query: Query) {
-    return this.actions$.pipe(
-      ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.LOCAL_QUERY_INIT),
-      map(action => action as LocalQueryInitAction),
-      filter(action => query.queryId == action.payload.queryId)
-    );
-  }
-
-  private removeQueryEventFor(query: Query) {
-    return this.actions$.pipe(
-      ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.REMOVE_QUERY),
-      map(action => action as LocalQueryInitAction),
-      filter(action => query.queryId == action.payload)
-    );
-  }
-
   @Effect()
   queryStore$ = this.actions$.pipe(
     ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.LOCAL_QUERY_INIT),
@@ -195,7 +171,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
             results =>
               new LocalQuerySuccessAction(
                 {
-                  jsonApiData: { data: results },
+                  jsonApiData: {data: results},
                   query: query,
                 },
                 action.zoneId
@@ -214,39 +190,6 @@ export class NgrxJsonApiEffects implements OnDestroy {
         );
     })
   );
-
-  private executeLocalQuery(query: Query) {
-    return (state$: Observable<NgrxJsonApiStore>) => {
-      let selected$: Observable<any>;
-      if (!query.type) {
-        return state$.map(() => Observable.throw('Unknown query'));
-      } else if (query.type && query.id) {
-        selected$ = state$.let(
-          selectStoreResource({ type: query.type, id: query.id })
-        );
-      } else {
-        selected$ = state$
-          .let(selectStoreResourcesOfType(query.type))
-          .pipe(
-            combineLatest(
-              state$.map(it => it.data),
-              (
-                resources: NgrxJsonApiStoreResources,
-                storeData: NgrxJsonApiStoreData
-              ) =>
-                filterResources(
-                  resources,
-                  storeData,
-                  query,
-                  this.config.resourceDefinitions,
-                  this.config.filteringConfig
-                )
-            )
-          );
-      }
-      return selected$.distinctUntilChanged();
-    };
-  }
 
   @Effect()
   deleteResource$ = this.actions$.pipe(
@@ -292,7 +235,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
   refreshQueriesOnDelete$: Observable<Action> = this.actions$.pipe(
     ofType(NgrxJsonApiActionTypes.API_DELETE_SUCCESS),
     withLatestFrom(this.store, (action: ApiDeleteSuccessAction, store) => {
-      let id = { id: action.payload.query.id, type: action.payload.query.type };
+      let id = {id: action.payload.query.id, type: action.payload.query.type};
       if (!id.id || !id.type) {
         throw new Error(
           'API_DELETE_SUCCESS did not carry resource id and type information'
@@ -306,7 +249,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
           let query = state.queries[queryId];
           if (query.resultIds) {
             let needsRefresh =
-              _.findIndex(query.resultIds, function(o) {
+              _.findIndex(query.resultIds, function (o) {
                 return _.isEqual(id, o);
               }) !== -1;
 
@@ -315,7 +258,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
             if (sameIdRequested && (needsRefresh || _.isEmpty(query.errors))) {
               throw new Error(
                 'store is in invalid state, queries for deleted' +
-                  ' resource should have been emptied and marked with 404 error'
+                ' resource should have been emptied and marked with 404 error'
               );
             }
 
@@ -330,77 +273,15 @@ export class NgrxJsonApiEffects implements OnDestroy {
     flatMap(actions => of(...actions))
   );
 
-  private handlePendingCreate(pendingChange: StoreResource, zoneId: string) {
-    let payload: Payload = this.generatePayload(pendingChange, 'POST');
-    return this.jsonApi.create(payload.query, payload.jsonApiData).pipe(
-      map(
-        response =>
-          new ApiPostSuccessAction(
-            {
-              jsonApiData: response.body,
-              query: payload.query,
-            },
-            zoneId
-          )
-      ),
-      catchError(error =>
-        of(
-          new ApiPostFailAction(
-            this.toErrorPayload(payload.query, error),
-            zoneId
-          )
-        )
-      )
-    );
-  }
-
-  private handlePendingUpdate(pendingChange: StoreResource, zoneId: string) {
-    let payload: Payload = this.generatePayload(pendingChange, 'PATCH');
-    return this.jsonApi.update(payload.query, payload.jsonApiData).pipe(
-      map(
-        response =>
-          new ApiPatchSuccessAction(
-            {
-              jsonApiData: response.body,
-              query: payload.query,
-            },
-            zoneId
-          )
-      ),
-      catchError(error =>
-        of(
-          new ApiPatchFailAction(
-            this.toErrorPayload(payload.query, error),
-            zoneId
-          )
-        )
-      )
-    );
-  }
-
-  private handlePendingDelete(pendingChange: StoreResource, zoneId: string) {
-    let payload: Payload = this.generatePayload(pendingChange, 'DELETE');
-    return this.jsonApi.delete(payload.query).pipe(
-      map(
-        response =>
-          new ApiDeleteSuccessAction(
-            {
-              jsonApiData: response.body,
-              query: payload.query,
-            },
-            zoneId
-          )
-      ),
-      catchError(error =>
-        of(
-          new ApiDeleteFailAction(
-            this.toErrorPayload(payload.query, error),
-            zoneId
-          )
-        )
-      )
-    );
-  }
+  @Effect()
+  clearReadWriteStatus$: Observable<Action> = this.actions$.pipe(
+    ofType<ClearZonesReadWriteStatus>(NgrxJsonApiActionTypes.CLEAR_ALL_READ_WRITE_STATUS),
+    withLatestFrom(this.store),
+    mergeMap(([action, store]: [ClearZonesReadWriteStatus, any]) => {
+      const zones: any = store['NgrxJsonApi']['zones'];
+      return Object.keys(zones).map(zoneId => new ClearZoneReadWriteStatus(zoneId));
+    })
+  );
 
   @Effect()
   applyResources$: Observable<Action> = this.actions$.pipe(
@@ -517,12 +398,12 @@ export class NgrxJsonApiEffects implements OnDestroy {
           };
         });
 
-        return this.jsonApi.operations({ operations: operations }).pipe(
+        return this.jsonApi.operations({operations: operations}).pipe(
           switchMap((result: { body: { operations: any[] } }): Action[] =>
             _.zip(operations, result.body.operations).map(
               ([operation, result]): Action => {
                 const responsePayload: Payload = {
-                  jsonApiData: { data: result.data },
+                  jsonApiData: {data: result.data},
                   query: {
                     type: operation.ref.type,
                   },
@@ -590,8 +471,6 @@ export class NgrxJsonApiEffects implements OnDestroy {
     flatMap(actions => actions)
   );
 
-  private config: NgrxJsonApiConfig;
-
   constructor(
     private actions$: Actions,
     private jsonApi: NgrxJsonApi,
@@ -600,7 +479,129 @@ export class NgrxJsonApiEffects implements OnDestroy {
     this.config = this.jsonApi.config;
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+  }
+
+  private localQueryInitEventFor(query: Query) {
+    return this.actions$.pipe(
+      ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.LOCAL_QUERY_INIT),
+      map(action => action as LocalQueryInitAction),
+      filter(action => query.queryId === action.payload.queryId)
+    );
+  }
+
+  private removeQueryEventFor(query: Query) {
+    return this.actions$.pipe(
+      ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.REMOVE_QUERY),
+      map(action => action as LocalQueryInitAction),
+      filter(action => query.queryId === action.payload)
+    );
+  }
+
+  private executeLocalQuery(query: Query) {
+    return (state$: Observable<NgrxJsonApiStore>) => {
+      let selected$: Observable<any>;
+      if (!query.type) {
+        return state$.map(() => Observable.throw('Unknown query'));
+      } else if (query.type && query.id) {
+        selected$ = state$.let(
+          selectStoreResource({type: query.type, id: query.id})
+        );
+      } else {
+        selected$ = state$
+          .let(selectStoreResourcesOfType(query.type))
+          .pipe(
+            combineLatest(
+              state$.map(it => it.data),
+              (
+                resources: NgrxJsonApiStoreResources,
+                storeData: NgrxJsonApiStoreData
+              ) =>
+                filterResources(
+                  resources,
+                  storeData,
+                  query,
+                  this.config.resourceDefinitions,
+                  this.config.filteringConfig
+                )
+            )
+          );
+      }
+      return selected$.distinctUntilChanged();
+    };
+  }
+
+  private handlePendingCreate(pendingChange: StoreResource, zoneId: string) {
+    let payload: Payload = this.generatePayload(pendingChange, 'POST');
+    return this.jsonApi.create(payload.query, payload.jsonApiData).pipe(
+      map(
+        response =>
+          new ApiPostSuccessAction(
+            {
+              jsonApiData: response.body,
+              query: payload.query,
+            },
+            zoneId
+          )
+      ),
+      catchError(error =>
+        of(
+          new ApiPostFailAction(
+            this.toErrorPayload(payload.query, error),
+            zoneId
+          )
+        )
+      )
+    );
+  }
+
+  private handlePendingUpdate(pendingChange: StoreResource, zoneId: string) {
+    let payload: Payload = this.generatePayload(pendingChange, 'PATCH');
+    return this.jsonApi.update(payload.query, payload.jsonApiData).pipe(
+      map(
+        response =>
+          new ApiPatchSuccessAction(
+            {
+              jsonApiData: response.body,
+              query: payload.query,
+            },
+            zoneId
+          )
+      ),
+      catchError(error =>
+        of(
+          new ApiPatchFailAction(
+            this.toErrorPayload(payload.query, error),
+            zoneId
+          )
+        )
+      )
+    );
+  }
+
+  private handlePendingDelete(pendingChange: StoreResource, zoneId: string) {
+    let payload: Payload = this.generatePayload(pendingChange, 'DELETE');
+    return this.jsonApi.delete(payload.query).pipe(
+      map(
+        response =>
+          new ApiDeleteSuccessAction(
+            {
+              jsonApiData: response.body,
+              query: payload.query,
+            },
+            zoneId
+          )
+      ),
+      catchError(error =>
+        of(
+          new ApiDeleteFailAction(
+            this.toErrorPayload(payload.query, error),
+            zoneId
+          )
+        )
+      )
+    );
+  }
 
   private toApplyAction(actions: Array<Action>, zoneId: string): any {
     for (let action of actions) {

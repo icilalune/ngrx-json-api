@@ -39,6 +39,8 @@ export const NgrxJsonApiActionTypes = {
   REMOVE_QUERY: '[NgrxJsonApi] REMOVE_QUERY',
   COMPACT_STORE: '[NgrxJsonApi] COMPACT_STORE',
   CLEAR_STORE: '[NgrxJsonApi] CLEAR_STORE',
+  CLEAR_ALL_READ_WRITE_STATUS: '[NgrxJsonApi] CLEAR_ALL_READ_WRITE_STATUS',
+  CLEAR_READ_WRITE_STATUS: '[NgrxJsonApi] CLEAR_READ_WRITE_STATUS'
 };
 
 export interface ApiApplyInitPayload {
@@ -265,6 +267,23 @@ export class ModifyStoreResourceErrorsAction extends NgrxJsonApiAction {
   }
 }
 
+export class ClearZonesReadWriteStatus {
+  readonly type = NgrxJsonApiActionTypes.CLEAR_ALL_READ_WRITE_STATUS;
+  constructor(
+  ) {
+  }
+}
+
+export class ClearZoneReadWriteStatus extends NgrxJsonApiAction {
+  readonly type = NgrxJsonApiActionTypes.CLEAR_READ_WRITE_STATUS;
+  constructor(
+    public zoneId: string
+  ) {
+    super();
+  }
+}
+
+
 export type NgrxJsonApiActions =
   | ApiApplyInitAction
   | ApiApplySuccessAction
@@ -293,4 +312,6 @@ export type NgrxJsonApiActions =
   | LocalQueryFailAction
   | ModifyStoreResourceErrorsAction
   | CompactStoreAction
-  | ClearStoreAction;
+  | ClearStoreAction
+  | ClearZonesReadWriteStatus
+  | ClearZoneReadWriteStatus;

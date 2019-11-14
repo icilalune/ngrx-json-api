@@ -59,6 +59,14 @@ export function getNgrxJsonApiZone(state: any, zoneId: string) {
   return state['NgrxJsonApi']['zones'][zoneId] as NgrxJsonApiZone;
 }
 
+export function getNgrxJsonApiZones() {
+  return (state$: Observable<any>) =>
+    (<Store<any>>state$)
+      .let(selectNgrxJson())
+      .map((it: any) => it.zones);
+}
+
+
 export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {

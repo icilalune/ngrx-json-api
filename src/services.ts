@@ -15,7 +15,7 @@ import {
   selectStoreResources,
   selectStoreResourcesOfType,
   isApplying,
-  selectStoreQuery,
+  selectStoreQuery, getNgrxJsonApiZones,
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -24,7 +24,7 @@ import {
   ApiPatchInitAction,
   ApiPostInitAction,
   ApiQueryRefreshAction,
-  ClearStoreAction,
+  ClearStoreAction, ClearZonesReadWriteStatus,
   CompactStoreAction,
   DeleteStoreResourceAction,
   LocalQueryInitAction,
@@ -385,6 +385,15 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
 
   public getZone(zoneId: string): NgrxJsonApiZoneService {
     return new NgrxJsonApiZoneService(zoneId, this.store);
+  }
+
+  public getAllZones() {
+    return this.store
+      .let(getNgrxJsonApiZones());
+  }
+
+  public clearAllZonesReadWriteStatus() {
+    this.store.dispatch(new ClearZonesReadWriteStatus());
   }
 
   public findOne(options: FindOptions): Observable<OneQueryResult> {
