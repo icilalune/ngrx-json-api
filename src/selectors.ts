@@ -122,7 +122,7 @@ export function selectManyQueryResult(
 ): (state: Observable<NgrxJsonApiStore>) => Observable<ManyQueryResult> {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$.map(state => {
-      let storeQuery = state.queries[queryId];
+      let storeQuery = (state && state.queries) ? state.queries[queryId] : null;
       if (!storeQuery) {
         return undefined;
       }
@@ -155,7 +155,7 @@ export function selectOneQueryResult(
 ): (state: Observable<NgrxJsonApiStore>) => Observable<OneQueryResult> {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$.map(state => {
-      let storeQuery = state.queries[queryId];
+      let storeQuery = (state && state.queries) ? state.queries[queryId] : null;
       if (!storeQuery) {
         return undefined;
       }
@@ -201,7 +201,8 @@ export function getNgrxJsonApiStore(state$: Observable<any>): Observable<any> {
  * deprecated, to not use any longer
  */
 export class NgrxJsonApiSelectors {
-  constructor() {}
+  constructor() {
+  }
 
   public getNgrxJsonApiStore$(): (state$: Observable<any>) => Observable<any> {
     return (state$: Observable<any>): Observable<NgrxJsonApiStore> => {
