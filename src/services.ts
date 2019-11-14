@@ -16,7 +16,7 @@ import {
   selectStoreResourcesOfType,
   isApplying,
   selectStoreQuery,
-  getNgrxJsonApiZones,
+  getNgrxJsonApiZones, isCreating, isUpdating, isReading, isDeleting,
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -106,7 +106,8 @@ export interface Options {
  * 'api' is the default zone that already historically has been put beneath NgrxJsonApi within the store.
  */
 export class NgrxJsonApiZoneService {
-  constructor(protected zoneId: string, protected store: Store<any>) {}
+  constructor(protected zoneId: string, protected store: Store<any>) {
+  }
 
   /**
    * Adds the given query to the store. Any existing query with the same queryId is replaced.
@@ -218,6 +219,22 @@ export class NgrxJsonApiZoneService {
 
   public isApplying(): Observable<boolean> {
     return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isApplying());
+  }
+
+  public isCreating(): Observable<boolean> {
+    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isCreating());
+  }
+
+  public isUpdating(): Observable<boolean> {
+    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isUpdating());
+  }
+
+  public isReading(): Observable<boolean> {
+    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isReading());
+  }
+
+  public isDeleting(): Observable<boolean> {
+    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isDeleting());
   }
 
   /**
@@ -432,12 +449,12 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
 
     let newQuery: Query;
     if (!query.queryId) {
-      newQuery = { ...query, queryId: this.uuid() };
+      newQuery = {...query, queryId: this.uuid()};
     } else {
       newQuery = query;
     }
 
-    this.putQuery({ query: newQuery, fromServer });
+    this.putQuery({query: newQuery, fromServer});
     let queryResult$: Observable<QueryResult>;
     if (multi) {
       queryResult$ = this.selectManyResults(newQuery.queryId, denormalise);

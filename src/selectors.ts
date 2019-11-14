@@ -123,6 +123,46 @@ export function isApplying(): (
   };
 }
 
+export function isCreating(): (
+  state: Observable<NgrxJsonApiStore>
+) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.map(state => {
+      return state && state.isCreating > 0;
+    });
+  };
+}
+
+export function isReading(): (
+  state: Observable<NgrxJsonApiStore>
+) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.map(state => {
+      return state && state.isReading > 0;
+    });
+  };
+}
+
+export function isUpdating(): (
+  state: Observable<NgrxJsonApiStore>
+) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.map(state => {
+      return state && state.isUpdating > 0;
+    });
+  };
+}
+
+export function isDeleting(): (
+  state: Observable<NgrxJsonApiStore>
+) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.map(state => {
+      return state && state.isDeleting > 0;
+    });
+  };
+}
+
 export function selectManyQueryResult(
   queryId: string,
   denormalize?: boolean
@@ -208,7 +248,8 @@ export function getNgrxJsonApiStore(state$: Observable<any>): Observable<any> {
  * deprecated, to not use any longer
  */
 export class NgrxJsonApiSelectors {
-  constructor() {}
+  constructor() {
+  }
 
   public getNgrxJsonApiStore$(): (state$: Observable<any>) => Observable<any> {
     return (state$: Observable<any>): Observable<NgrxJsonApiStore> => {
