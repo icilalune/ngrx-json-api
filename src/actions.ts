@@ -307,6 +307,4 @@ export type NgrxJsonApiActions =
   | LocalQueryFailAction
   | ModifyStoreResourceErrorsAction
   | CompactStoreAction
-  | ClearStoreAction
-  | ClearZonesReadWriteStatus
-  | ClearZoneReadWriteStatus;
+  | ClearStoreAction;
