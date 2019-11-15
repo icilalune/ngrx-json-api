@@ -518,7 +518,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
         });
 
         return this.jsonApi.operations({ operations: operations }).pipe(
-          switchMap((result: { body: { operations: any[] } }): Action[] =>
+          map((result: { body: { operations: any[] } }): Action[] =>
             _.zip(operations, result.body.operations).map(
               ([operation, result]): Action => {
                 const responsePayload: Payload = {
@@ -550,6 +550,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
               }
             )
           ),
+          map(actions => new ApiApplySuccessAction(actions, action.zoneId)),
           catchError(error => {
             return of(
               new ApiApplyFailAction(
