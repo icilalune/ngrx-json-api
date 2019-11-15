@@ -7,6 +7,7 @@ export enum Direction {
 
 export interface Document {
   data?: any;
+  operations?: any[];
   included?: any;
   meta?: any;
   links?: any;
@@ -72,6 +73,19 @@ export interface NgrxJsonApiConfig {
    * default is false
    */
   requestWithCredentials?: boolean;
+
+  /**
+   * If enabled, PATCH requests will only contains attributes and relationships
+   * that differs from the previously known persisted resource.
+   */
+  diffUpdates?: boolean;
+
+  /**
+   * Enable the use of JSON:API Operations extension to perform all apply steps
+   * in one HTTP request. <code>applyEnabled</code> must be <code>false</code>.
+   */
+  operationsApplyEnabled?: boolean;
+  operationsUrl?: string;
 }
 
 export interface NgrxJsonApiState {
