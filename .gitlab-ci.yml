@@ -1,0 +1,14 @@
+build:
+  image: node:10
+  before_script:
+    - mkdir -p ${HOME}/.ssh
+    - ssh-keyscan -p 10022 gitlab.icilalune.com >> ${HOME}/.ssh/known_hosts
+    - chmod -R 0700 ${HOME}/.ssh ${GIT_SSH_PRIVATE_KEY}
+    - eval $(ssh-agent)
+    - ssh-add ${GIT_SSH_PRIVATE_KEY}
+  script:
+    - yarn
+    - npm run build
+    - npm run deploy:builds ${CI_COMMIT_REF_NAME}
+  only:
+    - branches
