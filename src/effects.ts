@@ -452,20 +452,21 @@ export class NgrxJsonApiEffects implements OnDestroy {
                   if (operation.ref.id) {
                     responsePayload.query.id = operation.ref.id;
                   }
+                  const errorPayload = this.toErrorPayload(
+                    responsePayload.query,
+                    error
+                  );
                   switch (operation.op) {
                     case 'add':
-                      return new ApiPostFailAction(
-                        responsePayload,
-                        action.zoneId
-                      );
+                      return new ApiPostFailAction(errorPayload, action.zoneId);
                     case 'update':
                       return new ApiPatchFailAction(
-                        responsePayload,
+                        errorPayload,
                         action.zoneId
                       );
                     case 'delete':
                       return new ApiDeleteFailAction(
-                        responsePayload,
+                        errorPayload,
                         action.zoneId
                       );
                   }
