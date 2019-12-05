@@ -198,7 +198,9 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreQuery(queryId))
-      .pipe(map(query => query !== null));
+      .pipe(map(query => {
+        return query !== null && query !== undefined;
+      }));
   }
 
   public isQueryLoading(queryId: string): Observable<boolean> {
