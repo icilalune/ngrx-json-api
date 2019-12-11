@@ -1073,6 +1073,14 @@ export const generatePayload = (
               )
             : resource.relationships,
       },
+      ...(resource.meta &&
+      (operation !== 'PATCH' ||
+        !diffUpdate ||
+        updatedData(resource.persistedResource.meta, resource.meta))
+        ? {
+            meta: resource.meta,
+          }
+        : null),
     };
   }
 
