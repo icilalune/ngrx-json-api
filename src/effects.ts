@@ -512,7 +512,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
           );
           return {
             op: jsonAPIOperation,
-            data: payload.jsonApiData.data,
+            ...payload.jsonApiData,
             ref: ref,
           };
         });
