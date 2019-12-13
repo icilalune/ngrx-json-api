@@ -32,7 +32,7 @@ import {
   ClearStoreAction,
   ClearZonesReadWriteStatus,
   CompactStoreAction,
-  DeleteStoreResourceAction,
+  DeleteStoreResourceAction, HydrateZoneAction,
   LocalQueryInitAction,
   ModifyStoreResourceErrorsAction,
   NewStoreResourceAction,
@@ -46,7 +46,7 @@ import {
   NgrxJsonApiConfig,
   NgrxJsonApiStore,
   NgrxJsonApiStoreData,
-  NgrxJsonApiStoreResources,
+  NgrxJsonApiStoreResources, NgrxJsonApiZone,
   OneQueryResult,
   Query,
   QueryResult,
@@ -144,6 +144,10 @@ export class NgrxJsonApiZoneService {
     this.store.dispatch(new RemoveQueryAction(queryId, this.zoneId));
   }
 
+  public hydrateZone(zoneData: NgrxJsonApiZone) {
+    this.store.dispatch(new HydrateZoneAction(zoneData, this.zoneId));
+  }
+
   /**
    * Selects the data of the given query.
    *
@@ -198,9 +202,11 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreQuery(queryId))
-      .pipe(map(query => {
-        return query !== null && query !== undefined;
-      }));
+      .pipe(
+        map(query => {
+          return query !== null && query !== undefined;
+        })
+      );
   }
 
   public isQueryLoading(queryId: string): Observable<boolean> {

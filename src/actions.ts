@@ -7,7 +7,7 @@ import {
   Resource,
   ResourceIdentifier,
   Query,
-  ModifyStoreResourceErrorsPayload,
+  ModifyStoreResourceErrorsPayload, NgrxJsonApiZone,
 } from './interfaces';
 
 export const NgrxJsonApiActionTypes = {
@@ -41,6 +41,7 @@ export const NgrxJsonApiActionTypes = {
   CLEAR_STORE: '[NgrxJsonApi] CLEAR_STORE',
   CLEAR_ALL_READ_WRITE_STATUS: '[NgrxJsonApi] CLEAR_ALL_READ_WRITE_STATUS',
   CLEAR_READ_WRITE_STATUS: '[NgrxJsonApi] CLEAR_READ_WRITE_STATUS',
+  HYDRATE_ZONE: '[NgrxJsonApi] HYDRATE_ZONE'
 };
 
 export interface ApiApplyInitPayload {
@@ -279,6 +280,13 @@ export class ClearZoneReadWriteStatus extends NgrxJsonApiAction {
   }
 }
 
+export class HydrateZoneAction extends NgrxJsonApiAction {
+  readonly type = NgrxJsonApiActionTypes.HYDRATE_ZONE;
+  constructor(public zoneData: NgrxJsonApiZone, public zoneId: string) {
+    super();
+  }
+}
+
 export type NgrxJsonApiActions =
   | ApiApplyInitAction
   | ApiApplySuccessAction
@@ -307,4 +315,5 @@ export type NgrxJsonApiActions =
   | LocalQueryFailAction
   | ModifyStoreResourceErrorsAction
   | CompactStoreAction
-  | ClearStoreAction;
+  | ClearStoreAction
+  | HydrateZoneAction;

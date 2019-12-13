@@ -2,7 +2,7 @@ import { Action } from '@ngrx/store';
 
 import {
   ApiApplyInitAction,
-  ApiRollbackAction,
+  ApiRollbackAction, HydrateZoneAction,
   NgrxJsonApiActionTypes,
 } from './actions';
 import {
@@ -60,7 +60,7 @@ export function NgrxJsonApiStoreReducer(
     zone = initialNgrxJsonApiZone;
   }
   let newZone = NgrxJsonApiZoneReducer(zone, action);
-  if (zone != newZone) {
+  if (zone !== newZone) {
     return {
       ...state,
       zones: {
@@ -223,12 +223,12 @@ export function NgrxJsonApiZoneReducer(
     }
     case NgrxJsonApiActionTypes.REMOVE_QUERY: {
       let queryId = action.payload as string;
-      newZone = { ...zone, queries: removeQuery(zone.queries, queryId) };
+      newZone = {...zone, queries: removeQuery(zone.queries, queryId)};
       return newZone;
     }
     case NgrxJsonApiActionTypes.LOCAL_QUERY_INIT: {
       let query = action.payload as Query;
-      newZone = { ...zone, queries: updateQueryParams(zone.queries, query) };
+      newZone = {...zone, queries: updateQueryParams(zone.queries, query)};
       return newZone;
     }
     case NgrxJsonApiActionTypes.MODIFY_STORE_RESOURCE_ERRORS: {
@@ -263,7 +263,7 @@ export function NgrxJsonApiZoneReducer(
         false
       );
       if (updatedData !== zone.data) {
-        newZone = { ...zone, data: updatedData };
+        newZone = {...zone, data: updatedData};
         return newZone;
       } else {
         return zone;
@@ -277,7 +277,7 @@ export function NgrxJsonApiZoneReducer(
         true
       );
       if (updatedData !== zone.data) {
-        newZone = { ...zone, data: updatedData };
+        newZone = {...zone, data: updatedData};
         return newZone;
       } else {
         return zone;
@@ -292,7 +292,7 @@ export function NgrxJsonApiZoneReducer(
       );
       updatedData = updateResourceState(updatedData, action.payload, 'NEW');
       if (updatedData !== zone.data) {
-        newZone = { ...zone, data: updatedData };
+        newZone = {...zone, data: updatedData};
         return newZone;
       } else {
         return zone;
@@ -331,7 +331,7 @@ export function NgrxJsonApiZoneReducer(
         payload.ids,
         payload.include
       );
-      newZone = { ...zone, isApplying: zone.isApplying + 1 };
+      newZone = {...zone, isApplying: zone.isApplying + 1};
       for (let pendingChange of pending) {
         if (pendingChange.state === 'CREATED') {
           newZone.isCreating++;
@@ -353,7 +353,7 @@ export function NgrxJsonApiZoneReducer(
       for (let commitAction of actions) {
         newZone = NgrxJsonApiZoneReducer(newZone, commitAction);
       }
-      newZone = { ...newZone, isApplying: zone['isApplying'] - 1 };
+      newZone = {...newZone, isApplying: zone['isApplying'] - 1};
       return newZone;
     }
     case NgrxJsonApiActionTypes.API_ROLLBACK: {
@@ -378,6 +378,12 @@ export function NgrxJsonApiZoneReducer(
         isUpdating: 0,
         isDeleting: 0,
         isApplying: 0,
+      };
+      return newZone;
+    }
+    case NgrxJsonApiActionTypes.HYDRATE_ZONE: {
+      newZone = {
+        ...(action as HydrateZoneAction).zoneData,
       };
       return newZone;
     }
