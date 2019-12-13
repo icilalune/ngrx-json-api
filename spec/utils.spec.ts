@@ -1776,6 +1776,19 @@ describe('generatePayload', () => {
     expect(payload.query.type).toEqual('Article');
     expect(payload.jsonApiData.data.id).toEqual('10');
     expect(payload.jsonApiData.data.type).toEqual('Article');
+    expect(payload.jsonApiData.meta).toBeUndefined();
+    let resourceWithMeta = {
+      ...resource,
+      meta: {
+        testMetaData: 'test',
+      },
+    };
+    let payloadWithMeta = generatePayload(resourceWithMeta, 'POST');
+    expect(payloadWithMeta.query.type).toEqual('Article');
+    expect(payloadWithMeta.jsonApiData.data.id).toEqual('10');
+    expect(payloadWithMeta.jsonApiData.data.type).toEqual('Article');
+    expect(payloadWithMeta.jsonApiData.meta).toBeDefined();
+    expect(payloadWithMeta.jsonApiData.meta.testMetaData).toEqual('test');
   });
 
   it('should generate a payload for a "update" request given a resource', () => {
@@ -1788,6 +1801,20 @@ describe('generatePayload', () => {
     expect(payload.query.type).toEqual('Article');
     expect(payload.jsonApiData.data.id).toEqual('10');
     expect(payload.jsonApiData.data.type).toEqual('Article');
+    expect(payload.jsonApiData.meta).toBeUndefined();
+    let resourceWithMeta = {
+      ...resource,
+      meta: {
+        testMetaData: 'test',
+      },
+    };
+    let payloadWithMeta = generatePayload(resourceWithMeta, 'PATCH');
+    expect(payloadWithMeta.query.id).toEqual('10');
+    expect(payloadWithMeta.query.type).toEqual('Article');
+    expect(payloadWithMeta.jsonApiData.data.id).toEqual('10');
+    expect(payloadWithMeta.jsonApiData.data.type).toEqual('Article');
+    expect(payloadWithMeta.jsonApiData.meta).toBeDefined();
+    expect(payloadWithMeta.jsonApiData.meta.testMetaData).toEqual('test');
   });
 
   it('should generate a payload for a "delete" request given a resource', () => {
@@ -1829,6 +1856,10 @@ describe('generatePayload', () => {
           ],
         },
       },
+      meta: {
+        updatedMeta: 'data',
+        keptMeta: 'same',
+      },
       persistedResource: {
         id: '10',
         type: 'Article',
@@ -1845,6 +1876,10 @@ describe('generatePayload', () => {
           existingEmptyToBeFilled: {
             data: [],
           },
+        },
+        meta: {
+          existingMeta: 'test',
+          keptMeta: 'same',
         },
       },
     };
@@ -1873,5 +1908,9 @@ describe('generatePayload', () => {
       payload.jsonApiData.data.relationships.existingEmptyToBeFilled.data[0]
         .type
     ).toEqual('foo-type');
+    expect(payload.jsonApiData.meta).toBeDefined();
+    expect(payload.jsonApiData.meta.existingMeta).toBeUndefined();
+    expect(payload.jsonApiData.meta.updatedMeta).toBeDefined();
+    expect(payload.jsonApiData.meta.keptMeta).toBeDefined();
   });
 });
