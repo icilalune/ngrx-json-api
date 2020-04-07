@@ -2,30 +2,28 @@ import * as _ from 'lodash';
 
 import { diff } from 'deep-object-diff';
 
-import { Actions } from '@ngrx/effects';
-
 import {
   Direction,
   Document,
+  ErrorModificationType,
   FilteringOperator,
   FilteringParam,
   NgrxJsonApiFilteringConfig,
   NgrxJsonApiStore,
   NgrxJsonApiStoreData,
-  NgrxJsonApiStoreResources,
   NgrxJsonApiStoreQueries,
+  NgrxJsonApiStoreResources,
   OperationType,
   Payload,
   Query,
   Resource,
   ResourceDefinition,
-  ResourceIdentifier,
   ResourceError,
+  ResourceIdentifier,
   ResourceState,
-  StoreQuery,
   SortingParam,
+  StoreQuery,
   StoreResource,
-  ErrorModificationType,
 } from './interfaces';
 
 export function setIn(state: any, path: string, value: any) {
@@ -49,7 +47,7 @@ export const denormaliseObject = (
   resource: Resource,
   storeData: NgrxJsonApiStoreData,
   bag: NgrxJsonApiStoreData,
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): any => {
   // this function MUST MUTATE resource
   if (resource.hasOwnProperty('relationships')) {
@@ -100,7 +98,7 @@ export const denormaliseStoreResources = (
   items: Array<StoreResource>,
   storeData: NgrxJsonApiStoreData,
   bag: any = {},
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): Array<StoreResource> => {
   let results: Array<StoreResource> = [];
   for (let item of items) {
@@ -115,7 +113,7 @@ export const denormaliseStoreResource = (
   item: StoreResource,
   storeData: NgrxJsonApiStoreData,
   bag: any = {},
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): any => {
   if (!item) {
     return null;
@@ -595,6 +593,9 @@ export const updateStoreDataFromResource = (
   fromServer: boolean,
   override: boolean
 ): NgrxJsonApiStoreData => {
+  if (!resource) {
+    return storeData;
+  }
   if (_.isUndefined(storeData[resource.type])) {
     let newStoreData: NgrxJsonApiStoreData = { ...storeData };
     newStoreData[resource.type] = {};
@@ -995,16 +996,37 @@ export const generateFilteringQueryParams = (
   if (_.isEmpty(filtering)) {
     return '';
   }
-  let filteringParams = filtering.map(f => {
-    return (
-      'filter' +
-      (f.path ? '[' + f.path + ']' : '') +
-      (f.operator ? '[' + f.operator + ']' : '') +
-      '=' +
-      encodeURIComponent(f.value)
-    );
+  let filteringParams: any[] = filtering.map(f => {
+    return generateFilterQueryParams(f);
   });
+  filteringParams = [].concat.apply([], filteringParams);
   return filteringParams.join('&');
+};
+
+export const generateFilterQueryParams = (filter: FilteringParam): string[] => {
+  const valueIsArray: boolean = Array.isArray(filter.value);
+  const queries: string[] = [];
+
+  if (valueIsArray) {
+    (filter.value as Array<string>).forEach(field => {
+      queries.push(
+        'filter' +
+          (filter.path ? '[' + filter.path + ']' : '') +
+          (filter.operator ? '[' + filter.operator + ']' : '') +
+          '[]=' +
+          encodeURIComponent(field)
+      );
+    });
+  } else {
+    queries.push(
+      'filter' +
+        (filter.path ? '[' + filter.path + ']' : '') +
+        (filter.operator ? '[' + filter.operator + ']' : '') +
+        '=' +
+        encodeURIComponent(filter.value)
+    );
+  }
+  return queries;
 };
 
 export const generateSortingQueryParams = (
