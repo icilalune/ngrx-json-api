@@ -2,30 +2,28 @@ import * as _ from 'lodash';
 
 import { diff } from 'deep-object-diff';
 
-import { Actions } from '@ngrx/effects';
-
 import {
   Direction,
   Document,
+  ErrorModificationType,
   FilteringOperator,
   FilteringParam,
   NgrxJsonApiFilteringConfig,
   NgrxJsonApiStore,
   NgrxJsonApiStoreData,
-  NgrxJsonApiStoreResources,
   NgrxJsonApiStoreQueries,
+  NgrxJsonApiStoreResources,
   OperationType,
   Payload,
   Query,
   Resource,
   ResourceDefinition,
-  ResourceIdentifier,
   ResourceError,
+  ResourceIdentifier,
   ResourceState,
-  StoreQuery,
   SortingParam,
+  StoreQuery,
   StoreResource,
-  ErrorModificationType,
 } from './interfaces';
 
 export function setIn(state: any, path: string, value: any) {
@@ -49,7 +47,7 @@ export const denormaliseObject = (
   resource: Resource,
   storeData: NgrxJsonApiStoreData,
   bag: NgrxJsonApiStoreData,
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): any => {
   // this function MUST MUTATE resource
   if (resource.hasOwnProperty('relationships')) {
@@ -87,7 +85,7 @@ export const denormaliseObject = (
           );
         }
 
-        const relationship = { ...orginalRelationship };
+        const relationship = {...orginalRelationship};
         relationship['reference'] = denormalizedRelation;
         resource.relationships[relationshipName] = relationship;
       }
@@ -100,7 +98,7 @@ export const denormaliseStoreResources = (
   items: Array<StoreResource>,
   storeData: NgrxJsonApiStoreData,
   bag: any = {},
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): Array<StoreResource> => {
   let results: Array<StoreResource> = [];
   for (let item of items) {
@@ -115,7 +113,7 @@ export const denormaliseStoreResource = (
   item: StoreResource,
   storeData: NgrxJsonApiStoreData,
   bag: any = {},
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): any => {
   if (!item) {
     return null;
@@ -124,9 +122,9 @@ export const denormaliseStoreResource = (
     bag[item.type] = {};
   }
   if (_.isUndefined(bag[item.type][item.id])) {
-    let storeResource: StoreResource = { ...item };
+    let storeResource: StoreResource = {...item};
     if (item.relationships) {
-      storeResource.relationships = { ...item.relationships };
+      storeResource.relationships = {...item.relationships};
     }
 
     bag[storeResource.type][storeResource.id] = storeResource;
@@ -176,7 +174,7 @@ export const getDenormalisedPath = (
   let fields: Array<string> = path.split(pathSeparator);
   let currentResourceType = baseResourceType;
   for (let i = 0; i < fields.length; i++) {
-    let definition = _.find(resourceDefinitions, { type: currentResourceType });
+    let definition = _.find(resourceDefinitions, {type: currentResourceType});
 
     if (_.isUndefined(definition)) {
       throw new Error('Definition not found');
@@ -253,7 +251,7 @@ export const insertStoreResource = (
   resource: Resource,
   fromServer: boolean
 ): NgrxJsonApiStoreResources => {
-  let newStoreResources = { ...storeResources };
+  let newStoreResources = {...storeResources};
   if (fromServer) {
     newStoreResources[resource.id] = {
       ...resource,
@@ -285,8 +283,8 @@ export const removeStoreResource = (
   resourceId: ResourceIdentifier
 ): NgrxJsonApiStoreData => {
   if (storeData[resourceId.type][resourceId.id]) {
-    let newState: NgrxJsonApiStoreData = { ...storeData };
-    newState[resourceId.type] = { ...newState[resourceId.type] };
+    let newState: NgrxJsonApiStoreData = {...storeData};
+    newState[resourceId.type] = {...newState[resourceId.type]};
     delete newState[resourceId.type][resourceId.id];
     return newState;
   }
@@ -313,8 +311,8 @@ export const updateResourceState = (
     _.isUndefined(storeData[resourceId.type][resourceId.id])
   ) {
     if (resourceState === 'DELETED') {
-      let newState: NgrxJsonApiStoreData = { ...storeData };
-      newState[resourceId.type] = { ...newState[resourceId.type] };
+      let newState: NgrxJsonApiStoreData = {...storeData};
+      newState[resourceId.type] = {...newState[resourceId.type]};
       newState[resourceId.type][resourceId.id] = {
         ...newState[resourceId.type][resourceId.id],
       };
@@ -329,8 +327,8 @@ export const updateResourceState = (
       return storeData;
     }
   }
-  let newState: NgrxJsonApiStoreData = { ...storeData };
-  newState[resourceId.type] = { ...newState[resourceId.type] };
+  let newState: NgrxJsonApiStoreData = {...storeData};
+  newState[resourceId.type] = {...newState[resourceId.type]};
   newState[resourceId.type][resourceId.id] = {
     ...newState[resourceId.type][resourceId.id],
   };
@@ -407,7 +405,7 @@ export const updateStoreResource = (
     }
   }
 
-  let newState = { ...state };
+  let newState = {...state};
   newState[resource.id] = {
     ...newResource,
     persistedResource: persistedResource,
@@ -435,7 +433,7 @@ export const updateQueriesForDeletedResource = (
       ) {
         // found a query for a resource that was deleted => modify to 404
         newState = clearQueryResult(newState, queryState.query.queryId);
-        let notFoundError: ResourceError = { code: '404', status: 'Not Found' };
+        let notFoundError: ResourceError = {code: '404', status: 'Not Found'};
         newState[queryState.query.queryId].errors = [notFoundError];
       }
     }
@@ -457,7 +455,7 @@ export const updateResourceErrorsForQuery = (
   }
   return updateResourceErrors(
     storeData,
-    { id: query.id, type: query.type },
+    {id: query.id, type: query.type},
     document.errors,
     'SET'
   );
@@ -472,9 +470,9 @@ export const updateResourceErrors = (
   if (!storeData[id.type] || !storeData[id.type][id.id]) {
     return storeData;
   }
-  let newState: NgrxJsonApiStoreData = { ...storeData };
-  newState[id.type] = { ...newState[id.type] };
-  let storeResource = { ...newState[id.type][id.id] };
+  let newState: NgrxJsonApiStoreData = {...storeData};
+  newState[id.type] = {...newState[id.type]};
+  let storeResource = {...newState[id.type][id.id]};
 
   if (modificationType === 'SET') {
     storeResource.errors = [];
@@ -529,11 +527,11 @@ export const rollbackStoreResources = (
   ids: Array<ResourceIdentifier>,
   include: Array<string>
 ): NgrxJsonApiStoreData => {
-  let newState: NgrxJsonApiStoreData = { ...storeData };
+  let newState: NgrxJsonApiStoreData = {...storeData};
 
   if (_.isUndefined(ids)) {
     Object.keys(newState).forEach(type => {
-      newState[type] = { ...newState[type] };
+      newState[type] = {...newState[type]};
       Object.keys(newState[type]).forEach(id => {
         rollbackResource(newState, type, id);
       });
@@ -551,7 +549,7 @@ export const deleteStoreResources = (
   storeData: NgrxJsonApiStoreData,
   query: Query
 ) => {
-  let newState = { ...storeData };
+  let newState = {...storeData};
   // if an id is not provided, all resources of the provided type will be deleted
   if (typeof query.id === 'undefined') {
     newState[query.type] = {};
@@ -567,13 +565,13 @@ export const clearQueryResult = (
   storeData: NgrxJsonApiStoreQueries,
   queryId: string
 ) => {
-  let newQuery = { ...storeData[queryId] };
+  let newQuery = {...storeData[queryId]};
   delete newQuery.resultIds;
   delete newQuery.errors;
   delete newQuery.meta;
   delete newQuery.links;
 
-  let newState = { ...storeData };
+  let newState = {...storeData};
   newState[queryId] = newQuery;
   return newState;
 };
@@ -595,8 +593,11 @@ export const updateStoreDataFromResource = (
   fromServer: boolean,
   override: boolean
 ): NgrxJsonApiStoreData => {
+  if (!resource) {
+    return storeData;
+  }
   if (_.isUndefined(storeData[resource.type])) {
-    let newStoreData: NgrxJsonApiStoreData = { ...storeData };
+    let newStoreData: NgrxJsonApiStoreData = {...storeData};
     newStoreData[resource.type] = {};
     newStoreData[resource.type] = insertStoreResource(
       newStoreData[resource.type],
@@ -613,7 +614,7 @@ export const updateStoreDataFromResource = (
 
     // check if nothing has changed
     if (updatedStoreResources !== storeData[resource.type]) {
-      let newStoreData: NgrxJsonApiStoreData = { ...storeData };
+      let newStoreData: NgrxJsonApiStoreData = {...storeData};
       newStoreData[resource.type] = updatedStoreResources;
       return newStoreData;
     }
@@ -627,7 +628,7 @@ export const updateStoreDataFromResource = (
 
     // check if nothing has changed
     if (updatedStoreResources !== storeData[resource.type]) {
-      let newStoreData: NgrxJsonApiStoreData = { ...storeData };
+      let newStoreData: NgrxJsonApiStoreData = {...storeData};
       newStoreData[resource.type] = updatedStoreResources;
       return newStoreData;
     }
@@ -653,7 +654,7 @@ export const updateStoreDataFromPayload = (
     resources = [...resources, ...included];
   }
 
-  let newStoreData: NgrxJsonApiStoreData = { ...storeData };
+  let newStoreData: NgrxJsonApiStoreData = {...storeData};
 
   let hasChange = false;
   for (const resource of resources) {
@@ -670,7 +671,7 @@ export const updateStoreDataFromPayload = (
       if (!newStoreData[resource.type]) {
         newStoreData[resource.type] = {};
       } else if (newStoreData[resource.type] === storeData[resource.type]) {
-        newStoreData[resource.type] = { ...storeData[resource.type] };
+        newStoreData[resource.type] = {...storeData[resource.type]};
       }
       newStoreData[resource.type][resource.id] = storeResource;
     }
@@ -696,7 +697,7 @@ export const updateQueryParams = (
     return storeQueries;
   }
 
-  let newStoreQuery = { ...storeQueries[query.queryId] };
+  let newStoreQuery = {...storeQueries[query.queryId]};
   newStoreQuery.loading = true;
   newStoreQuery.query = _.cloneDeep(query);
 
@@ -704,7 +705,7 @@ export const updateQueryParams = (
     newStoreQuery.errors = [];
   }
 
-  let newStoreQueries: NgrxJsonApiStoreQueries = { ...storeQueries };
+  let newStoreQueries: NgrxJsonApiStoreQueries = {...storeQueries};
   newStoreQueries[newStoreQuery.query.queryId] = newStoreQuery;
   return newStoreQueries;
 };
@@ -729,7 +730,7 @@ export const updateQueryResults = (
     };
 
     if (!_.isEqual(newQueryStore, storeQuery)) {
-      let newState: NgrxJsonApiStoreQueries = { ...storeQueries };
+      let newState: NgrxJsonApiStoreQueries = {...storeQueries};
       newState[queryId] = <StoreQuery>newQueryStore;
       return newState;
     }
@@ -751,8 +752,8 @@ export const updateQueryErrors = (
   if (!queryId || !storeQueries[queryId]) {
     return storeQueries;
   }
-  let newState = { ...storeQueries };
-  let newStoreQuery = { ...newState[queryId] };
+  let newState = {...storeQueries};
+  let newStoreQuery = {...newState[queryId]};
   newStoreQuery.errors = [];
   newStoreQuery.loading = false;
   if (document.errors) {
@@ -769,7 +770,7 @@ export const removeQuery = (
   storeQueries: NgrxJsonApiStoreQueries,
   queryId: string
 ): NgrxJsonApiStoreQueries => {
-  let newState: NgrxJsonApiStoreQueries = { ...storeQueries };
+  let newState: NgrxJsonApiStoreQueries = {...storeQueries};
   delete newState[queryId];
   return newState;
 };
@@ -780,7 +781,7 @@ export const removeQuery = (
 export const toResourceIdentifier = (
   resource: Resource
 ): ResourceIdentifier => {
-  return { type: resource.type, id: resource.id };
+  return {type: resource.type, id: resource.id};
 };
 
 /**
@@ -995,16 +996,43 @@ export const generateFilteringQueryParams = (
   if (_.isEmpty(filtering)) {
     return '';
   }
-  let filteringParams = filtering.map(f => {
-    return (
-      'filter' +
-      (f.path ? '[' + f.path + ']' : '') +
-      (f.operator ? '[' + f.operator + ']' : '') +
-      '=' +
-      encodeURIComponent(f.value)
-    );
+  let filteringParams: any[] = filtering.map(f => {
+    return (generateFilterQueryParams(f));
   });
+  filteringParams = [].concat.apply([], filteringParams);
   return filteringParams.join('&');
+};
+
+export const generateFilterQueryParams = (
+  filter: FilteringParam
+): string[] => {
+
+  const valueIsArray: boolean = Array.isArray(filter.value);
+  const queries: string[] = [];
+
+  if (valueIsArray) {
+
+    (filter.value as Array<string>).forEach(field => {
+      queries.push(
+        'filter' +
+        (filter.path ? '[' + filter.path + ']' : '') +
+        (filter.operator ? '[' + filter.operator + ']' : '') +
+        '[]=' +
+        encodeURIComponent(field)
+      )
+    });
+
+  } else {
+    queries.push(
+      'filter' +
+      (filter.path ? '[' + filter.path + ']' : '') +
+      (filter.operator ? '[' + filter.operator + ']' : '') +
+      '=' +
+      encodeURIComponent(filter.value)
+    )
+  }
+  return queries;
+
 };
 
 export const generateSortingQueryParams = (
@@ -1061,16 +1089,16 @@ export const generatePayload = (
         attributes:
           operation === 'PATCH' && diffUpdate && resource.persistedResource
             ? updatedData(
-                resource.persistedResource.attributes,
-                resource.attributes
-              )
+            resource.persistedResource.attributes,
+            resource.attributes
+            )
             : resource.attributes,
         relationships:
           operation === 'PATCH' && diffUpdate && resource.persistedResource
             ? updatedData(
-                resource.persistedResource.relationships,
-                resource.relationships
-              )
+            resource.persistedResource.relationships,
+            resource.relationships
+            )
             : resource.relationships,
       },
       ...(resource.meta &&
@@ -1078,8 +1106,8 @@ export const generatePayload = (
         !diffUpdate ||
         updatedData(resource.persistedResource.meta, resource.meta))
         ? {
-            meta: resource.meta,
-          }
+          meta: resource.meta,
+        }
         : null),
     };
   }
@@ -1456,7 +1484,7 @@ export function getPendingChanges(
         includeNew
       );
     }
-    pending = _.uniqBy(pending, function(e) {
+    pending = _.uniqBy(pending, function (e) {
       return e.type + '####' + e.id;
     });
   }
