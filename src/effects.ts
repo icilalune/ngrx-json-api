@@ -407,38 +407,37 @@ export class NgrxJsonApiEffects implements OnDestroy {
         });
 
         return this.jsonApi.operations({ operations: operations }).pipe(
-          map(
-            (result: { body: { operations: any[] } }): Action[] =>
-              _.zip(operations, result.body.operations).map(
-                ([operation, result]): Action => {
-                  const responsePayload: Payload = {
-                    jsonApiData: { data: result.data },
-                    query: {
-                      type: operation.ref.type,
-                    },
-                  };
-                  if (operation.ref.id) {
-                    responsePayload.query.id = operation.ref.id;
-                  }
-                  switch (operation.op) {
-                    case 'add':
-                      return new ApiPostSuccessAction(
-                        responsePayload,
-                        action.zoneId
-                      );
-                    case 'update':
-                      return new ApiPatchSuccessAction(
-                        responsePayload,
-                        action.zoneId
-                      );
-                    case 'delete':
-                      return new ApiDeleteSuccessAction(
-                        responsePayload,
-                        action.zoneId
-                      );
-                  }
+          map((result: { body: { operations: any[] } }): Action[] =>
+            _.zip(operations, result.body.operations).map(
+              ([operation, result]): Action => {
+                const responsePayload: Payload = {
+                  jsonApiData: { data: result.data },
+                  query: {
+                    type: operation.ref.type,
+                  },
+                };
+                if (operation.ref.id) {
+                  responsePayload.query.id = operation.ref.id;
                 }
-              )
+                switch (operation.op) {
+                  case 'add':
+                    return new ApiPostSuccessAction(
+                      responsePayload,
+                      action.zoneId
+                    );
+                  case 'update':
+                    return new ApiPatchSuccessAction(
+                      responsePayload,
+                      action.zoneId
+                    );
+                  case 'delete':
+                    return new ApiDeleteSuccessAction(
+                      responsePayload,
+                      action.zoneId
+                    );
+                }
+              }
+            )
           ),
           map(actions => new ApiApplySuccessAction(actions, action.zoneId)),
           catchError(error => {

@@ -28,9 +28,11 @@ describe('Pipes', () => {
   });
 
   describe('GetDenormalisedValuePipe', () => {
-    beforeEach(inject([GetDenormalisedValuePipe], p => {
-      pipe = p;
-    }));
+    beforeEach(
+      inject([GetDenormalisedValuePipe], p => {
+        pipe = p;
+      })
+    );
 
     let denormalisedR;
     beforeEach(() => {
@@ -64,15 +66,19 @@ describe('Pipes', () => {
   });
 
   describe('SelectStoreResourcePipe', () => {
-    beforeEach(inject([SelectStoreResourcePipe], p => {
-      pipe = p;
-    }));
+    beforeEach(
+      inject([SelectStoreResourcePipe], p => {
+        pipe = p;
+      })
+    );
   });
 
   describe('SelectStoreResourcesPipe', () => {
-    beforeEach(inject([SelectStoreResourcesPipe], p => {
-      pipe = p;
-    }));
+    beforeEach(
+      inject([SelectStoreResourcesPipe], p => {
+        pipe = p;
+      })
+    );
 
     it('should return Observable of StoreResource', () => {
       const ids = [{ id: '2', type: 'Article' }, { id: '1', type: 'Article' }];
@@ -84,9 +90,11 @@ describe('Pipes', () => {
   });
 
   describe('DenormaliseStoreResourcePipe', () => {
-    beforeEach(inject([DenormaliseStoreResourcePipe], p => {
-      pipe = p;
-    }));
+    beforeEach(
+      inject([DenormaliseStoreResourcePipe], p => {
+        pipe = p;
+      })
+    );
 
     it('should denormalise a Resource', () => {
       let query = {

@@ -68,8 +68,8 @@ export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state =>
-      state && state.queries ? state.queries[queryId] : null
+    return state$.map(
+      state => (state && state.queries ? state.queries[queryId] : null)
     );
   };
 }
@@ -181,8 +181,8 @@ export function selectManyQueryResult(
         };
         return queryResult;
       } else {
-        let results = storeQuery.resultIds.map(id =>
-          state.data[id.type] ? state.data[id.type][id.id] : undefined
+        let results = storeQuery.resultIds.map(
+          id => (state.data[id.type] ? state.data[id.type][id.id] : undefined)
         );
         if (denormalize) {
           results = denormaliseStoreResources(results, state.data);
