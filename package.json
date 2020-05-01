@@ -40,8 +40,6 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@ngrx/effects": ">=6.1.0",
-    "@ngrx/store": ">=6.1.0",
     "deep-object-diff": "^1.1.0",
     "rxjs-compat": "~6.2.0"
   },
@@ -55,8 +53,8 @@
     "@angular/platform-browser": "^9.1.4",
     "@angular/platform-browser-dynamic": "^9.1.4",
     "@angular/platform-server": "^9.1.4",
-    "@ngrx/effects": "6.1.0",
-    "@ngrx/store": "6.1.0",
+    "@ngrx/effects": "9.1.0",
+    "@ngrx/store": "9.1.0",
     "@types/deep-freeze": "^0.1.1",
     "@types/fs-extra": "^5.0.0",
     "@types/glob": "^5.0.35",
@@ -121,6 +119,7 @@
     "npm": ">= 3"
   },
   "dependencies": {
-    "@angular-devkit/schematics": "^9.1.4"
+    "@angular-devkit/schematics": "^9.1.4",
+    "tsickle": "^0.38.1"
   }
 }
