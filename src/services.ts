@@ -215,7 +215,10 @@ export class NgrxJsonApiZoneService {
     return this.store
       .let(selectNgrxJsonApiZone(this.zoneId))
       .let(selectStoreQuery(queryId))
-      .pipe(filter(query => !!query), map(query => query.loading));
+      .pipe(
+        filter(query => !!query),
+        map(query => query.loading)
+      );
   }
 
   /**
@@ -474,8 +477,8 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     } else {
       queryResult$ = this.selectOneResults(newQuery.queryId, denormalise);
     }
-    return <Observable<QueryResult>>queryResult$.finally(() =>
-      this.removeQuery(newQuery.queryId)
+    return <Observable<QueryResult>>(
+      queryResult$.finally(() => this.removeQuery(newQuery.queryId))
     );
   }
 
