@@ -80,7 +80,9 @@ export function configure(config: NgrxJsonApiConfig): Array<any> {
   ],
 })
 export class NgrxJsonApiModule {
-  static configure(config: NgrxJsonApiConfig): ModuleWithProviders<NgrxJsonApiModule> {
+  static configure(
+    config: NgrxJsonApiConfig
+  ): ModuleWithProviders<NgrxJsonApiModule> {
     return {
       ngModule: NgrxJsonApiModule,
       providers: configure(config),
