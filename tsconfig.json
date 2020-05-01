@@ -12,6 +12,7 @@
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "baseUrl": "./src",
+    "enableIvy": false,
     "types": [
       "deep-freeze",
       "jasmine",
