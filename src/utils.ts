@@ -593,9 +593,6 @@ export const updateStoreDataFromResource = (
   fromServer: boolean,
   override: boolean
 ): NgrxJsonApiStoreData => {
-  if (!resource) {
-    return storeData;
-  }
   if (_.isUndefined(storeData[resource.type])) {
     let newStoreData: NgrxJsonApiStoreData = { ...storeData };
     newStoreData[resource.type] = {};
@@ -875,8 +872,9 @@ export const filterResources = (
 
         if (!_.isUndefined(filteringConfig)) {
           pathSeparator = <string>_.get(filteringConfig, 'pathSeparator');
-          filteringOperators = <Array<FilteringOperator>>(
-            _.get(filteringConfig, 'filteringOperators')
+          filteringOperators = <Array<FilteringOperator>>_.get(
+            filteringConfig,
+            'filteringOperators'
           );
         }
         // resource type and attribute
@@ -996,36 +994,42 @@ export const generateFilteringQueryParams = (
     return '';
   }
   let filteringParams: any[] = filtering.map(f => {
-    return generateFilterQueryParams(f);
+    return (generateFilterQueryParams(f));
   });
   filteringParams = [].concat.apply([], filteringParams);
   return filteringParams.join('&');
 };
 
-export const generateFilterQueryParams = (filter: FilteringParam): string[] => {
+export const generateFilterQueryParams = (
+  filter: FilteringParam
+): string[] => {
+
   const valueIsArray: boolean = Array.isArray(filter.value);
   const queries: string[] = [];
 
   if (valueIsArray) {
+
     (filter.value as Array<string>).forEach(field => {
       queries.push(
         'filter' +
-          (filter.path ? '[' + filter.path + ']' : '') +
-          (filter.operator ? '[' + filter.operator + ']' : '') +
-          '[]=' +
-          encodeURIComponent(field)
-      );
+        (filter.path ? '[' + filter.path + ']' : '') +
+        (filter.operator ? '[' + filter.operator + ']' : '') +
+        '[]=' +
+        encodeURIComponent(field)
+      )
     });
+
   } else {
     queries.push(
       'filter' +
-        (filter.path ? '[' + filter.path + ']' : '') +
-        (filter.operator ? '[' + filter.operator + ']' : '') +
-        '=' +
-        encodeURIComponent(filter.value)
-    );
+      (filter.path ? '[' + filter.path + ']' : '') +
+      (filter.operator ? '[' + filter.operator + ']' : '') +
+      '=' +
+      encodeURIComponent(filter.value)
+    )
   }
   return queries;
+
 };
 
 export const generateSortingQueryParams = (
