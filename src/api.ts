@@ -36,7 +36,7 @@ export class NgrxJsonApi {
     }
   }
 
-  private urlBuilder(query: Query, operation: OperationType) {
+  public urlBuilder(query: Query, operation: OperationType) {
     switch (operation) {
       case 'GET': {
         if (query.type && query.id) {
@@ -219,7 +219,7 @@ export class NgrxJsonApi {
     return this.request(requestOptions);
   }
 
-  private request(requestOptions: any) {
+  public request(requestOptions: any): Observable<ArrayBuffer> {
     let request: HttpRequest<any>;
     let newRequestOptions = {
       ...requestOptions,

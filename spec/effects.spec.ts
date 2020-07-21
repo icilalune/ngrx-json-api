@@ -5,7 +5,7 @@ import {
   HttpResponse,
 } from '@angular/common/http';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { cold, hot } from 'jasmine-marbles';
 
@@ -188,7 +188,7 @@ describe('NgrxJsonApiEffects', () => {
     let payload = generatePayload(resource, 'DELETE');
     let completed = new ApiDeleteSuccessAction(
       {
-        jsonApiData: payload.query,
+        jsonApiData: payload.jsonApiData,
         query: payload.query,
       },
       'api'
@@ -339,10 +339,11 @@ describe('NgrxJsonApiEffects', () => {
       type: 'Article',
       id: '1',
     };
-    let localqueryfailAction = new LocalQueryInitAction(query);
+    let localqueryfailAction = new LocalQueryInitAction(query, 'api');
     let error = 'ERROR';
     let completed = new LocalQueryFailAction(
-      effects.toErrorPayload(query, error)
+      effects.toErrorPayload(query, error),
+      'api'
     );
     actions = hot('-a', { a: localqueryfailAction });
     let response = cold('--#', {}, error);
@@ -369,7 +370,7 @@ describe('NgrxJsonApiEffects', () => {
       headers: headers,
       status: 400,
     });
-    let payload = effects.toErrorPayload(payload.query, error);
+    payload = effects.toErrorPayload(payload.query, error);
     expect(payload.jsonApiData.errors).toEqual([
       {
         detail: 'someDetail',
@@ -394,7 +395,7 @@ describe('NgrxJsonApiEffects', () => {
       headers: headers,
       status: 400,
     });
-    let payload = effects.toErrorPayload(payload.query, error);
+    payload = effects.toErrorPayload(payload.query, error);
     expect(payload.jsonApiData.errors).toEqual([
       {
         detail: 'someDetail',
@@ -420,7 +421,7 @@ describe('NgrxJsonApiEffects', () => {
       status: 400,
       statusText: 'someErrorText',
     });
-    let payload = effects.toErrorPayload(payload.query, error);
+    payload = effects.toErrorPayload(payload.query, error);
     expect(payload.jsonApiData.errors).toEqual([
       {
         code: 'someErrorText',
