@@ -21,10 +21,12 @@ describe('ngrx json api', () => {
     });
   });
   //
-  beforeEach(inject([NgrxJsonApi, HttpTestingController], (_api, _http) => {
-    jsonapi = _api;
-    httpMock = _http;
-  }));
+  beforeEach(
+    inject([NgrxJsonApi, HttpTestingController], (_api, _http) => {
+      jsonapi = _api;
+      httpMock = _http;
+    })
+  );
 
   afterEach(() => {
     httpMock.verify();
@@ -246,10 +248,12 @@ describe('ngrx json api with overridden configs', () => {
     });
   });
 
-  beforeEach(inject([NgrxJsonApi, HttpTestingController], (_api, _http) => {
-    jsonapi = _api;
-    httpMock = _http;
-  }));
+  beforeEach(
+    inject([NgrxJsonApi, HttpTestingController], (_api, _http) => {
+      jsonapi = _api;
+      httpMock = _http;
+    })
+  );
 
   afterEach(() => {
     httpMock.verify();
