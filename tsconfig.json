@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
+    "downlevelIteration": true,
     "importHelpers": true,
-    "target": "ES5",
-    "module": "commonjs",
+    "target": "es2015",
+    "module": "esnext",
     "sourceMap": true,
     "outDir": "dist",
     "emitDecoratorMetadata": true,
