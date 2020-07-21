@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import 'rxjs/add/observable/concat';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/combineLatest';
@@ -16,22 +16,20 @@ import 'rxjs/add/observable/zip';
 
 import { filter, map } from 'rxjs/operators';
 
-import { Store, select } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 
 import {
   ManyQueryResult,
   NGRX_JSON_API_DEFAULT_ZONE,
   NgrxJsonApiState,
   NgrxJsonApiStore,
+  NgrxJsonApiStoreData,
   NgrxJsonApiStoreResources,
   NgrxJsonApiZone,
   OneQueryResult,
-  Resource,
   ResourceIdentifier,
-  NgrxJsonApiStoreQueries,
-  StoreResource,
-  NgrxJsonApiStoreData,
   StoreQuery,
+  StoreResource,
 } from './interfaces';
 import { denormaliseStoreResource, denormaliseStoreResources } from './utils';
 
@@ -50,9 +48,10 @@ export function selectNgrxJsonApiDefaultZone() {
 
 export function selectNgrxJsonApiZone(zoneId: string) {
   return (state$: Observable<any>) =>
-    (<Store<any>>state$)
-      .let(selectNgrxJson())
-      .map((it: any) => it.zones[zoneId] as NgrxJsonApiZone);
+    (<Store<any>>state$).pipe(
+      selectNgrxJson(),
+      map((it: any) => it.zones[zoneId] as NgrxJsonApiZone)
+    )
 }
 
 export function getNgrxJsonApiZone(state: any, zoneId: string) {
@@ -63,7 +62,7 @@ export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => state.queries[queryId]);
+    return state$.pipe(map(state => state.queries[queryId]));
   };
 }
 
@@ -73,20 +72,21 @@ export function selectStoreResourcesOfType(
   state: Observable<NgrxJsonApiStore>
 ) => Observable<NgrxJsonApiStoreResources> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$
-      .map(state => state.data)
-      .map(data => (data ? data[type] : undefined));
+    return state$.pipe(
+      map(state => state.data),
+      map(data => (data ? data[type] : undefined))
+    );
   };
 }
 
 export function selectStoreResource(identifier: ResourceIdentifier) {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$
-      .let(selectStoreResourcesOfType(identifier.type))
-      .map(
-        resources =>
-          (resources ? resources[identifier.id] : undefined) as StoreResource
-      );
+    return state$.pipe(
+      selectStoreResourcesOfType(identifier.type),
+      map(resources =>
+        (resources ? resources[identifier.id] : undefined) as StoreResource
+      )
+    )
   };
 }
 
@@ -111,31 +111,33 @@ export function selectManyQueryResult(
   denormalize?: boolean
 ): (state: Observable<NgrxJsonApiStore>) => Observable<ManyQueryResult> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
-      let storeQuery = state.queries[queryId];
-      if (!storeQuery) {
-        return undefined;
-      }
-
-      if (_.isEmpty(storeQuery.resultIds)) {
-        let queryResult: ManyQueryResult = {
-          ...storeQuery,
-          data: _.isUndefined(storeQuery.resultIds) ? undefined : [],
-        };
-        return queryResult;
-      } else {
-        let results = storeQuery.resultIds.map(id =>
-          state.data[id.type] ? state.data[id.type][id.id] : undefined
-        );
-        if (denormalize) {
-          results = denormaliseStoreResources(results, state.data);
+    return state$.pipe(
+      map(state => {
+        let storeQuery = state.queries[queryId];
+        if (!storeQuery) {
+          return undefined;
         }
-        return {
-          ...storeQuery,
-          data: results as Array<StoreResource>,
-        };
-      }
-    });
+
+        if (_.isEmpty(storeQuery.resultIds)) {
+          let queryResult: ManyQueryResult = {
+            ...storeQuery,
+            data: _.isUndefined(storeQuery.resultIds) ? undefined : [],
+          };
+          return queryResult;
+        } else {
+          let results = storeQuery.resultIds.map(id =>
+            state.data[id.type] ? state.data[id.type][id.id] : undefined
+          );
+          if (denormalize) {
+            results = denormaliseStoreResources(results, state.data);
+          }
+          return {
+            ...storeQuery,
+            data: results as Array<StoreResource>,
+          };
+        }
+      })
+    );
   };
 }
 
@@ -144,39 +146,40 @@ export function selectOneQueryResult(
   denormalize?: boolean
 ): (state: Observable<NgrxJsonApiStore>) => Observable<OneQueryResult> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
-      let storeQuery = state.queries[queryId];
-      if (!storeQuery) {
-        return undefined;
-      }
-
-      if (_.isEmpty(storeQuery.resultIds)) {
-        let queryResult: OneQueryResult = {
-          ...storeQuery,
-          data: _.isUndefined(storeQuery.resultIds) ? undefined : null,
-        };
-        return queryResult;
-      } else {
-        if (storeQuery.resultIds.length >= 2) {
-          throw new Error(
-            'expected single result for query ' + storeQuery.query.queryId
-          );
+    return state$.pipe(map(state => {
+        let storeQuery = state.queries[queryId];
+        if (!storeQuery) {
+          return undefined;
         }
 
-        let resultId = storeQuery.resultIds[0];
-        let result = state.data[resultId.type]
-          ? state.data[resultId.type][resultId.id]
-          : undefined;
-        if (denormalize) {
-          result = denormaliseStoreResource(result, state.data);
+        if (_.isEmpty(storeQuery.resultIds)) {
+          let queryResult: OneQueryResult = {
+            ...storeQuery,
+            data: _.isUndefined(storeQuery.resultIds) ? undefined : null,
+          };
+          return queryResult;
+        } else {
+          if (storeQuery.resultIds.length >= 2) {
+            throw new Error(
+              'expected single result for query ' + storeQuery.query.queryId
+            );
+          }
+
+          let resultId = storeQuery.resultIds[0];
+          let result = state.data[resultId.type]
+            ? state.data[resultId.type][resultId.id]
+            : undefined;
+          if (denormalize) {
+            result = denormaliseStoreResource(result, state.data);
+          }
+          const queryResult: OneQueryResult = {
+            ...storeQuery,
+            data: result,
+          };
+          return queryResult;
         }
-        const queryResult: OneQueryResult = {
-          ...storeQuery,
-          data: result,
-        };
-        return queryResult;
-      }
-    });
+      })
+    );
   };
 }
 
@@ -184,18 +187,19 @@ export function selectOneQueryResult(
  * deprecated, to not use any longer
  */
 export function getNgrxJsonApiStore(state$: Observable<any>): Observable<any> {
-  return state$.let(selectNgrxJsonApiDefaultZone());
+  return state$.pipe(selectNgrxJsonApiDefaultZone());
 }
 
 /**
  * deprecated, to not use any longer
  */
 export class NgrxJsonApiSelectors {
-  constructor() {}
+  constructor() {
+  }
 
   public getNgrxJsonApiStore$(): (state$: Observable<any>) => Observable<any> {
     return (state$: Observable<any>): Observable<NgrxJsonApiStore> => {
-      return state$.let(selectNgrxJsonApiDefaultZone());
+      return state$.pipe(selectNgrxJsonApiDefaultZone());
     };
   }
 
@@ -212,8 +216,10 @@ export class NgrxJsonApiSelectors {
   public getStoreResourceOfType$(type: string) {
     return (state$: Observable<NgrxJsonApiStore>) => {
       return state$
-        .let(this.getStoreData$())
-        .map(resources => (resources ? resources[type] : undefined));
+        .pipe(
+          this.getStoreData$(),
+          map(resources => (resources ? resources[type] : undefined))
+        );
     };
   }
 
@@ -242,8 +248,10 @@ export class NgrxJsonApiSelectors {
   public getPersistedResource$(identifier: ResourceIdentifier) {
     return (state$: Observable<NgrxJsonApiStore>) => {
       return state$
-        .let(this.getStoreResource$(identifier))
-        .map(it => (it ? it.persistedResource : undefined));
+        .pipe(
+          this.getStoreResource$(identifier),
+          map(it => (it ? it.persistedResource : undefined))
+        )
     };
   }
 }

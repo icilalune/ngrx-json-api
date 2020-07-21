@@ -1,29 +1,27 @@
 import * as _ from 'lodash';
 
-import { Actions } from '@ngrx/effects';
-
 import {
   Direction,
   Document,
+  ErrorModificationType,
   FilteringOperator,
   FilteringParam,
   NgrxJsonApiFilteringConfig,
   NgrxJsonApiStore,
   NgrxJsonApiStoreData,
-  NgrxJsonApiStoreResources,
   NgrxJsonApiStoreQueries,
+  NgrxJsonApiStoreResources,
   OperationType,
   Payload,
   Query,
   Resource,
   ResourceDefinition,
-  ResourceIdentifier,
   ResourceError,
+  ResourceIdentifier,
   ResourceState,
-  StoreQuery,
   SortingParam,
+  StoreQuery,
   StoreResource,
-  ErrorModificationType,
 } from './interfaces';
 
 export function setIn(state: any, path: string, value: any) {
@@ -47,7 +45,7 @@ export const denormaliseObject = (
   resource: Resource,
   storeData: NgrxJsonApiStoreData,
   bag: NgrxJsonApiStoreData,
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): any => {
   // this function MUST MUTATE resource
   if (resource.hasOwnProperty('relationships')) {
@@ -72,7 +70,7 @@ export const denormaliseObject = (
             bag,
             denormalizePersisted
           );
-        } else if ((data as Array<ResourceIdentifier>).length == 0) {
+        } else if ((data as Array<ResourceIdentifier>).length === 0) {
           denormalizedRelation = data;
         } else {
           // many relation
@@ -98,7 +96,7 @@ export const denormaliseStoreResources = (
   items: Array<StoreResource>,
   storeData: NgrxJsonApiStoreData,
   bag: any = {},
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): Array<StoreResource> => {
   let results: Array<StoreResource> = [];
   for (let item of items) {
@@ -113,7 +111,7 @@ export const denormaliseStoreResource = (
   item: StoreResource,
   storeData: NgrxJsonApiStoreData,
   bag: any = {},
-  denormalizePersisted: boolean = false
+  denormalizePersisted = false
 ): any => {
   if (!item) {
     return null;
@@ -1352,7 +1350,7 @@ function collectPendingChange(
             .filter(
               relIncludeElem =>
                 relIncludeElem.length >= 2 &&
-                relIncludeElem[0] == relationshipName
+                relIncludeElem[0] === relationshipName
             )
             .forEach(relIncludeElem =>
               relationInclude.push(relIncludeElem.slice(1))

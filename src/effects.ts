@@ -7,29 +7,20 @@ import * as _ from 'lodash';
 import { Action, Store } from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
+import { Observable, of } from 'rxjs';
 
 import 'rxjs/add/operator/concatAll';
 import {
   catchError,
   concatAll,
-  combineLatest,
-  debounceTime,
+  distinctUntilChanged,
   filter,
   flatMap,
   map,
-  mapTo,
   mergeMap,
-  skip,
-  switchMap,
-  switchMapTo,
-  tap,
-  take,
+  takeUntil,
   toArray,
   withLatestFrom,
-  takeWhile,
-  takeUntil,
 } from 'rxjs/operators';
 import {
   ApiApplyFailAction,
@@ -72,12 +63,7 @@ import {
   ResourceError,
   StoreResource,
 } from './interfaces';
-import {
-  generatePayload,
-  getPendingChanges,
-  sortPendingChanges,
-  filterResources,
-} from './utils';
+import { filterResources, generatePayload, getPendingChanges, sortPendingChanges, } from './utils';
 
 @Injectable()
 export class NgrxJsonApiEffects implements OnDestroy {
@@ -170,7 +156,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
     return this.actions$.pipe(
       ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.LOCAL_QUERY_INIT),
       map(action => action as LocalQueryInitAction),
-      filter(action => query.queryId == action.payload.queryId)
+      filter(action => query.queryId === action.payload.queryId)
     );
   }
 
@@ -178,7 +164,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
     return this.actions$.pipe(
       ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.REMOVE_QUERY),
       map(action => action as LocalQueryInitAction),
-      filter(action => query.queryId == action.payload)
+      filter(action => query.queryId === action.payload)
     );
   }
 
@@ -188,9 +174,9 @@ export class NgrxJsonApiEffects implements OnDestroy {
     mergeMap((action: LocalQueryInitAction) => {
       const query = action.payload;
       return this.store
-        .let(selectNgrxJsonApiZone(action.zoneId))
-        .let(this.executeLocalQuery(query))
         .pipe(
+          selectNgrxJsonApiZone(action.zoneId),
+          this.executeLocalQuery(query),
           map(
             results =>
               new LocalQuerySuccessAction(
@@ -219,20 +205,19 @@ export class NgrxJsonApiEffects implements OnDestroy {
     return (state$: Observable<NgrxJsonApiStore>) => {
       let selected$: Observable<any>;
       if (!query.type) {
-        return state$.map(() => Observable.throw('Unknown query'));
+        return state$.pipe(map(() => Observable.throw('Unknown query')));
       } else if (query.type && query.id) {
-        selected$ = state$.let(
+        selected$ = state$.pipe(
           selectStoreResource({ type: query.type, id: query.id })
         );
       } else {
         selected$ = state$
-          .let(selectStoreResourcesOfType(query.type))
           .pipe(
-            combineLatest(
-              state$.map(it => it.data),
+            selectStoreResourcesOfType(query.type),
+            withLatestFrom(state$.pipe(map(it => it.data))),
+            map(
               (
-                resources: NgrxJsonApiStoreResources,
-                storeData: NgrxJsonApiStoreData
+                [resources, storeData]: [NgrxJsonApiStoreResources, NgrxJsonApiStoreData]
               ) =>
                 filterResources(
                   resources,
@@ -241,10 +226,11 @@ export class NgrxJsonApiEffects implements OnDestroy {
                   this.config.resourceDefinitions,
                   this.config.filteringConfig
                 )
-            )
+            ),
+            distinctUntilChanged(_.isEqual)
           );
       }
-      return selected$.distinctUntilChanged();
+      return selected$;
     };
   }
 
@@ -440,14 +426,14 @@ export class NgrxJsonApiEffects implements OnDestroy {
           }
         }
         return of(...actions)
-          .concatAll()
           .pipe(
+            concatAll(),
             toArray(),
             map(actions => this.toApplyAction(actions, action.zoneId))
           );
       }
     ),
-    flatMap(actions => actions)
+    mergeMap(actions => actions)
   );
 
   private config: NgrxJsonApiConfig;

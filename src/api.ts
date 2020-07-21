@@ -1,36 +1,17 @@
 import * as _ from 'lodash';
 
-import {
-  HttpHeaders,
-  HttpClient,
-  HttpRequest,
-  // required for building
-  HttpHeaderResponse,
-  HttpProgressEvent,
-  HttpResponse,
-  HttpSentEvent,
-  HttpUserEvent,
-} from '@angular/common/http';
-
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
-import { Observable } from 'rxjs/Observable';
+import { HttpClient, HttpHeaders, HttpRequest, } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/throw';
 
+import { Document, NgrxJsonApiConfig, OperationType, Query, } from './interfaces';
 import {
-  Document,
-  NgrxJsonApiConfig,
-  OperationType,
-  ResourceDefinition,
-  Query,
-  QueryParams,
-} from './interfaces';
-import {
-  generateIncludedQueryParams,
   generateFieldsQueryParams,
   generateFilteringQueryParams,
-  generateSortingQueryParams,
+  generateIncludedQueryParams,
   generateQueryParams,
+  generateSortingQueryParams,
 } from './utils';
 
 export class NgrxJsonApi {

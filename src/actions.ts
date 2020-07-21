@@ -1,13 +1,11 @@
-import { Injectable } from '@angular/core';
-
 import { Action } from '@ngrx/store';
 
 import {
+  ModifyStoreResourceErrorsPayload,
   Payload,
+  Query,
   Resource,
   ResourceIdentifier,
-  Query,
-  ModifyStoreResourceErrorsPayload,
 } from './interfaces';
 
 export const NgrxJsonApiActionTypes = {

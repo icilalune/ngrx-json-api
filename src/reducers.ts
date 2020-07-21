@@ -1,10 +1,6 @@
 import { Action } from '@ngrx/store';
 
-import {
-  ApiApplyInitAction,
-  ApiRollbackAction,
-  NgrxJsonApiActionTypes,
-} from './actions';
+import { ApiApplyInitAction, ApiRollbackAction, NgrxJsonApiActionTypes, } from './actions';
 import {
   ModifyStoreResourceErrorsPayload,
   NgrxJsonApiState,
@@ -60,7 +56,7 @@ export function NgrxJsonApiStoreReducer(
     zone = initialNgrxJsonApiZone;
   }
   let newZone = NgrxJsonApiZoneReducer(zone, action);
-  if (zone != newZone) {
+  if (zone !== newZone) {
     return {
       ...state,
       zones: {
