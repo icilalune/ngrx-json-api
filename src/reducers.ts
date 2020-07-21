@@ -1,6 +1,10 @@
 import { Action } from '@ngrx/store';
 
-import { ApiApplyInitAction, ApiRollbackAction, NgrxJsonApiActionTypes, } from './actions';
+import {
+  ApiApplyInitAction,
+  ApiRollbackAction,
+  NgrxJsonApiActionTypes,
+} from './actions';
 import {
   ModifyStoreResourceErrorsPayload,
   NgrxJsonApiState,

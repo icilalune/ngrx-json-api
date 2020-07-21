@@ -4,7 +4,11 @@ import { Observable } from 'rxjs';
 import 'rxjs/add/operator/let';
 
 import { NgrxJsonApiService } from './services';
-import { NGRX_JSON_API_DEFAULT_ZONE, ResourceIdentifier, StoreResource, } from './interfaces';
+import {
+  NGRX_JSON_API_DEFAULT_ZONE,
+  ResourceIdentifier,
+  StoreResource,
+} from './interfaces';
 
 @Pipe({ name: 'jaSelectStoreResource' })
 export class SelectStoreResourcePipe implements PipeTransform {

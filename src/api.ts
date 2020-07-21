@@ -1,11 +1,16 @@
 import * as _ from 'lodash';
 
-import { HttpClient, HttpHeaders, HttpRequest, } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/throw';
 
-import { Document, NgrxJsonApiConfig, OperationType, Query, } from './interfaces';
+import {
+  Document,
+  NgrxJsonApiConfig,
+  OperationType,
+  Query,
+} from './interfaces';
 import {
   generateFieldsQueryParams,
   generateFilteringQueryParams,

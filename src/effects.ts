@@ -63,7 +63,12 @@ import {
   ResourceError,
   StoreResource,
 } from './interfaces';
-import { filterResources, generatePayload, getPendingChanges, sortPendingChanges, } from './utils';
+import {
+  filterResources,
+  generatePayload,
+  getPendingChanges,
+  sortPendingChanges,
+} from './utils';
 
 @Injectable()
 export class NgrxJsonApiEffects implements OnDestroy {
@@ -173,31 +178,30 @@ export class NgrxJsonApiEffects implements OnDestroy {
     ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.LOCAL_QUERY_INIT),
     mergeMap((action: LocalQueryInitAction) => {
       const query = action.payload;
-      return this.store
-        .pipe(
-          selectNgrxJsonApiZone(action.zoneId),
-          this.executeLocalQuery(query),
-          map(
-            results =>
-              new LocalQuerySuccessAction(
-                {
-                  jsonApiData: { data: results },
-                  query: query,
-                },
-                action.zoneId
-              )
-          ),
-          catchError(error =>
-            of(
-              new LocalQueryFailAction(
-                this.toErrorPayload(query, error),
-                action.zoneId
-              )
+      return this.store.pipe(
+        selectNgrxJsonApiZone(action.zoneId),
+        this.executeLocalQuery(query),
+        map(
+          results =>
+            new LocalQuerySuccessAction(
+              {
+                jsonApiData: { data: results },
+                query: query,
+              },
+              action.zoneId
             )
-          ),
-          takeUntil(this.localQueryInitEventFor(query)),
-          takeUntil(this.removeQueryEventFor(query))
-        );
+        ),
+        catchError(error =>
+          of(
+            new LocalQueryFailAction(
+              this.toErrorPayload(query, error),
+              action.zoneId
+            )
+          )
+        ),
+        takeUntil(this.localQueryInitEventFor(query)),
+        takeUntil(this.removeQueryEventFor(query))
+      );
     })
   );
 
@@ -211,24 +215,24 @@ export class NgrxJsonApiEffects implements OnDestroy {
           selectStoreResource({ type: query.type, id: query.id })
         );
       } else {
-        selected$ = state$
-          .pipe(
-            selectStoreResourcesOfType(query.type),
-            withLatestFrom(state$.pipe(map(it => it.data))),
-            map(
-              (
-                [resources, storeData]: [NgrxJsonApiStoreResources, NgrxJsonApiStoreData]
-              ) =>
-                filterResources(
-                  resources,
-                  storeData,
-                  query,
-                  this.config.resourceDefinitions,
-                  this.config.filteringConfig
-                )
-            ),
-            distinctUntilChanged(_.isEqual)
-          );
+        selected$ = state$.pipe(
+          selectStoreResourcesOfType(query.type),
+          withLatestFrom(state$.pipe(map(it => it.data))),
+          map(
+            ([resources, storeData]: [
+              NgrxJsonApiStoreResources,
+              NgrxJsonApiStoreData
+            ]) =>
+              filterResources(
+                resources,
+                storeData,
+                query,
+                this.config.resourceDefinitions,
+                this.config.filteringConfig
+              )
+          ),
+          distinctUntilChanged(_.isEqual)
+        );
       }
       return selected$;
     };
@@ -425,12 +429,11 @@ export class NgrxJsonApiEffects implements OnDestroy {
             throw new Error('unknown state ' + pendingChange.state);
           }
         }
-        return of(...actions)
-          .pipe(
-            concatAll(),
-            toArray(),
-            map(actions => this.toApplyAction(actions, action.zoneId))
-          );
+        return of(...actions).pipe(
+          concatAll(),
+          toArray(),
+          map(actions => this.toApplyAction(actions, action.zoneId))
+        );
       }
     ),
     mergeMap(actions => actions)
