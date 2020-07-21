@@ -101,7 +101,7 @@ export interface Options {
  * Represents an isolated area in the store with its own set of resources and queries.
  * 'api' is the default zone that already historically has been put beneath NgrxJsonApi within the store.
  */
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class NgrxJsonApiZoneService {
   constructor(protected zoneId: string, protected store: Store<any>) {}
 
@@ -348,7 +348,7 @@ export class NgrxJsonApiZoneService {
   }
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class NgrxJsonApiService extends NgrxJsonApiZoneService {
   private test = true;
 
