@@ -124,8 +124,8 @@ export function selectManyQueryResult(
         };
         return queryResult;
       } else {
-        let results = storeQuery.resultIds.map(
-          id => (state.data[id.type] ? state.data[id.type][id.id] : undefined)
+        let results = storeQuery.resultIds.map(id =>
+          state.data[id.type] ? state.data[id.type][id.id] : undefined
         );
         if (denormalize) {
           results = denormaliseStoreResources(results, state.data);

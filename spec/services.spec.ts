@@ -20,11 +20,9 @@ describe('NgrxJsonApiService', () => {
     });
   });
 
-  beforeEach(
-    inject([NgrxJsonApiService], s => {
-      service = s;
-    })
-  );
+  beforeEach(inject([NgrxJsonApiService], s => {
+    service = s;
+  }));
 
   describe('findOne', () => {
     it('find a single StoreResource from the state', () => {

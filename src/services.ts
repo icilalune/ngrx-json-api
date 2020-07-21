@@ -413,8 +413,8 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     } else {
       queryResult$ = this.selectOneResults(newQuery.queryId, denormalise);
     }
-    return <Observable<QueryResult>>queryResult$.finally(() =>
-      this.removeQuery(newQuery.queryId)
+    return <Observable<QueryResult>>(
+      queryResult$.finally(() => this.removeQuery(newQuery.queryId))
     );
   }
 
