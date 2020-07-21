@@ -12,7 +12,7 @@ import {
   selectOneQueryResult,
   selectStoreResource,
   selectStoreResources,
-  selectStoreResourcesOfType
+  selectStoreResourcesOfType,
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -36,7 +36,8 @@ import {
   NGRX_JSON_API_DEFAULT_ZONE,
   NgrxJsonApiConfig,
   NgrxJsonApiStore,
-  NgrxJsonApiStoreData, NgrxJsonApiStoreResources,
+  NgrxJsonApiStoreData,
+  NgrxJsonApiStoreResources,
   OneQueryResult,
   Query,
   QueryResult,
