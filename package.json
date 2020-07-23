@@ -1,6 +1,6 @@
 {
   "name": "@madeinlune/ngrx-json-api",
-  "version": "2.3.1-lune5",
+  "version": "9.0.0-lune-pre1",
   "description": "A JSON API client for ngrx",
   "module": "FESM/ngrx-json-api.es5.js",
   "es2015": "FESM/ngrx-json-api.js",
@@ -15,10 +15,11 @@
     "build": "ts-node ./build/index.ts",
     "deploy:builds": "ts-node ./build/deploy-build.ts",
     "test:unit": "node ./tests.js",
-    "test": "nyc yarn run test:unit",
+    "test": "nyc node ./tests.js",
     "clean": "git clean -xdf && yarn",
     "coverage:html": "nyc report --reporter=html",
-    "ci": "yarn run build && yarn run test && nyc report --reporter=text-lcov | coveralls",
+    "ci": "yarn run build && yarn run test && yarn run coveralls",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "prettier": "prettier --parser typescript --single-quote --trailing-comma --write \"./**/*.ts\"",
     "watch:tests": "chokidar './(src|spec)/**/*.ts' --initial -c 'nyc --reporter=text --reporter=html yarn run test:unit'"
   },
@@ -40,21 +41,25 @@
   },
   "license": "MIT",
   "peerDependencies": {
+    "@angular/common": "^9.0.0",
+    "@angular/core": "^9.0.0",
+    "@ngrx/effects": "^9.0.0",
+    "@ngrx/store": "^9.0.0",
     "deep-object-diff": "^1.1.0",
-    "rxjs-compat": "~6.2.0"
+    "rxjs": "^6.5.3",
+    "rxjs-compat": "^6.5.3"
   },
   "devDependencies": {
-    "@angular/animations": "^9.1.4",
-    "@angular/common": "^9.1.4",
-    "@angular/compiler": "^9.1.4",
-    "@angular/compiler-cli": "^9.1.4",
-    "@angular/core": "^9.1.4",
-    "@angular/http": "^6.0.0",
-    "@angular/platform-browser": "^9.1.4",
-    "@angular/platform-browser-dynamic": "^9.1.4",
-    "@angular/platform-server": "^9.1.4",
-    "@ngrx/effects": "9.1.0",
-    "@ngrx/store": "9.1.0",
+    "@angular/animations": "^9.0.0",
+    "@angular/common": "^9.0.0",
+    "@angular/compiler": "^9.0.0",
+    "@angular/compiler-cli": "^9.0.0",
+    "@angular/core": "^9.0.0",
+    "@angular/platform-browser": "^9.0.0",
+    "@angular/platform-browser-dynamic": "^9.0.0",
+    "@angular/platform-server": "^9.0.0",
+    "@ngrx/effects": "^9.1.0",
+    "@ngrx/store": "^9.1.0",
     "@types/deep-freeze": "^0.1.1",
     "@types/fs-extra": "^5.0.0",
     "@types/glob": "^5.0.35",
@@ -104,22 +109,19 @@
     "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",
     "rollup": "^0.55.1",
-    "rxjs": "~6.5.5",
-    "rxjs-compat": "~6.2.0",
+    "rxjs": "~6.5.0",
+    "rxjs-compat": "~6.5.0",
     "sorcery": "^0.10.0",
     "ts-node": "^4.1.0",
-    "tslib": "^1.11.1",
+    "tsickle": "^0.38.1",
+    "tslib": "^1.11.0",
     "tslint": "~5.9.1",
-    "typescript": "3.8.3",
+    "typescript": "~3.8.0",
     "uglify-js": "^2.8.22",
-    "zone.js": "~0.10.3"
+    "zone.js": "~0.10.0"
   },
   "engines": {
     "node": ">= 4.2.1",
     "npm": ">= 3"
-  },
-  "dependencies": {
-    "@angular-devkit/schematics": "^9.1.4",
-    "tsickle": "^0.38.1"
   }
 }
