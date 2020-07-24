@@ -37,6 +37,7 @@ import { generatePayload } from '../src/utils';
 
 import { TestingModule } from './testing.module';
 import { Query, Resource } from '../src/interfaces';
+import { provideMockStore } from '@ngrx/store/testing';
 
 describe('NgrxJsonApiEffects', () => {
   let effects: NgrxJsonApiEffects;
@@ -59,6 +60,7 @@ describe('NgrxJsonApiEffects', () => {
             'delete',
           ]),
         },
+        provideMockStore({initialState:{}}),
         provideMockActions(() => actions),
       ],
     });
@@ -241,7 +243,7 @@ describe('NgrxJsonApiEffects', () => {
     let response = cold('--a', { a: query });
     let expected = cold('---b', { b: completed });
     store.pipe.and.returnValue(mockStorePipe);
-    mockStorePipe.pipe.and.returnValue(response);
+    //mockStorePipe.pipe.and.returnValue(response);
     expect(effects.queryStore$).toBeObservable(expected);
   });
 

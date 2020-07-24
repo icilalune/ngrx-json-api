@@ -8,11 +8,10 @@ import { Action, Store } from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 
 import { Observable } from 'rxjs';
-import { concat, of } from 'rxjs';
+import { combineLatest, concat, of } from 'rxjs';
 
 import {
   catchError,
-  combineLatest,
   distinctUntilChanged,
   filter,
   flatMap,
@@ -69,7 +68,6 @@ import {
   sortPendingChanges,
   filterResources,
 } from './utils';
-import { from } from 'rxjs/internal/observable/from';
 
 @Injectable()
 export class NgrxJsonApiEffects implements OnDestroy {
@@ -217,24 +215,18 @@ export class NgrxJsonApiEffects implements OnDestroy {
           selectStoreResource({ type: query.type, id: query.id })
         );
       } else {
-        selected$ = state$
-          .pipe(
-            selectStoreResourcesOfType(query.type),
-            combineLatest(
-              state$.pipe(map(it => it.data)),
-              (
-                resources: NgrxJsonApiStoreResources,
-                storeData: NgrxJsonApiStoreData
-              ) =>
-                filterResources(
-                  resources,
-                  storeData,
-                  query,
-                  this.config.resourceDefinitions,
-                  this.config.filteringConfig
-                )
-            )
+        selected$ = combineLatest([
+          state$.pipe(selectStoreResourcesOfType(query.type)),
+          state$.pipe(map(it => it.data))
+        ], (resources, storeData) => {
+          return filterResources(
+            resources,
+            storeData,
+            query,
+            this.config.resourceDefinitions,
+            this.config.filteringConfig
           );
+        });
       }
       return selected$.pipe(distinctUntilChanged());
     };
