@@ -1,14 +1,26 @@
 import * as _ from 'lodash';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/observable/throw';
+import {
+  HttpHeaders,
+  HttpClient,
+  HttpRequest,
+  // required for building
+  HttpHeaderResponse,
+  HttpProgressEvent,
+  HttpResponse,
+  HttpSentEvent,
+  HttpUserEvent,
+} from '@angular/common/http';
+
+import { Observable } from 'rxjs';
 
 import {
   Document,
   NgrxJsonApiConfig,
   OperationType,
+  ResourceDefinition,
   Query,
+  QueryParams,
 } from './interfaces';
 import {
   generateIncludedQueryParams,

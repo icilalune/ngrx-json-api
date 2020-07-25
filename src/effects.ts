@@ -7,21 +7,19 @@ import * as _ from 'lodash';
 import { Action, Store } from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
+import { Observable } from 'rxjs';
+import { combineLatest, concat, of } from 'rxjs';
 
-import 'rxjs/add/operator/concatAll';
 import {
   catchError,
-  combineLatest,
+  distinctUntilChanged,
   filter,
   flatMap,
   map,
   mergeMap,
-  switchMap,
-  takeUntil,
   toArray,
   withLatestFrom,
+  takeUntil,
 } from 'rxjs/operators';
 import {
   ApiApplyFailAction,
@@ -168,9 +166,9 @@ export class NgrxJsonApiEffects implements OnDestroy {
     mergeMap((action: LocalQueryInitAction) => {
       const query = action.payload;
       return this.store
-        .let(selectNgrxJsonApiZone(action.zoneId))
-        .let(this.executeLocalQuery(query))
         .pipe(
+          selectNgrxJsonApiZone(action.zoneId),
+          this.executeLocalQuery(query),
           map(
             results =>
               new LocalQuerySuccessAction(
@@ -194,6 +192,33 @@ export class NgrxJsonApiEffects implements OnDestroy {
         );
     })
   );
+
+  private executeLocalQuery(query: Query) {
+    return (state$: Observable<NgrxJsonApiStore>) => {
+      let selected$: Observable<any>;
+      if (!query.type) {
+        return state$.pipe(map(() => Observable.throw('Unknown query')));
+      } else if (query.type && query.id) {
+        selected$ = state$.pipe(
+          selectStoreResource({ type: query.type, id: query.id })
+        );
+      } else {
+        selected$ = combineLatest([
+          state$.pipe(selectStoreResourcesOfType(query.type)),
+          state$.pipe(map(it => it.data))
+        ], (resources, storeData) => {
+          return filterResources(
+            resources,
+            storeData,
+            query,
+            this.config.resourceDefinitions,
+            this.config.filteringConfig
+          );
+        });
+      }
+      return selected$.pipe(distinctUntilChanged());
+    };
+  }
 
   @Effect()
   deleteResource$ = this.actions$.pipe(
@@ -328,8 +353,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
             throw new Error('unknown state ' + pendingChange.state);
           }
         }
-        return of(...actions)
-          .concatAll()
+        return concat(...actions)
           .pipe(
             toArray(),
             map(actions => this.toApplyAction(actions, action.zoneId))

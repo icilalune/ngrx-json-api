@@ -1,8 +1,6 @@
 import * as _ from 'lodash';
 
-import { Observable } from 'rxjs/Observable';
-import { filter, map } from 'rxjs/operators';
-import 'rxjs/add/operator/finally';
+import { Observable } from 'rxjs';
 
 import { Store } from '@ngrx/store';
 
@@ -64,6 +62,7 @@ import {
   getDenormalisedValue,
   uuid,
 } from './utils';
+import { combineLatest, finalize, map } from 'rxjs/operators';
 
 export interface FindOptions {
   query: Query;
@@ -160,9 +159,10 @@ export class NgrxJsonApiZoneService {
     queryId: string,
     denormalize = false
   ): Observable<ManyQueryResult> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectManyQueryResult(queryId, denormalize));
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectManyQueryResult(queryId, denormalize)
+  );
   }
 
   /**
@@ -175,9 +175,10 @@ export class NgrxJsonApiZoneService {
     queryId: string,
     denormalize = false
   ): Observable<OneQueryResult> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectOneQueryResult(queryId, denormalize));
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectOneQueryResult(queryId, denormalize)
+    );
   }
 
   /**
@@ -187,9 +188,10 @@ export class NgrxJsonApiZoneService {
   public selectStoreResource(
     identifier: ResourceIdentifier
   ): Observable<StoreResource> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreResource(identifier));
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectStoreResource(identifier)
+    );
   }
 
   public selectStoreResourcesOfType(
@@ -225,9 +227,10 @@ export class NgrxJsonApiZoneService {
   public selectStoreResources(
     identifiers: ResourceIdentifier[]
   ): Observable<StoreResource[]> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreResources(identifiers));
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectStoreResources(identifiers)
+    );
   }
 
   public isApplying(): Observable<boolean> {
@@ -438,7 +441,7 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
   public get storeSnapshot() {
     if (!this._storeSnapshot) {
       this.store
-        .let(selectNgrxJsonApiDefaultZone())
+        .pipe(selectNgrxJsonApiDefaultZone())
         .subscribe(it => (this._storeSnapshot = it as NgrxJsonApiStore));
 
       if (!this._storeSnapshot) {
@@ -474,9 +477,9 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     } else {
       queryResult$ = this.selectOneResults(newQuery.queryId, denormalise);
     }
-    return <Observable<QueryResult>>queryResult$.finally(() =>
+    return <Observable<QueryResult>>queryResult$.pipe(finalize(() =>
       this.removeQuery(newQuery.queryId)
-    );
+    ));
   }
 
   private uuid() {
@@ -521,8 +524,8 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     storeResource$: Observable<StoreResource | StoreResource[]>,
     zoneId: string = this.zoneId
   ): Observable<StoreResource | StoreResource[]> {
-    return storeResource$.combineLatest(
-      this.store.let(selectNgrxJsonApiZone(zoneId)).map(state => state.data),
+    return storeResource$.pipe(combineLatest(
+      this.store.pipe(selectNgrxJsonApiZone(zoneId), map(state => state.data)),
       (
         storeResource: StoreResource | StoreResource[],
         storeData: NgrxJsonApiStoreData
@@ -537,7 +540,7 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
           return denormaliseStoreResource(resource, storeData) as StoreResource;
         }
       }
-    );
+    ));
   }
 
   public getDenormalisedPath(path: string, resourceType: string): string {
