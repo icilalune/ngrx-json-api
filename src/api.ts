@@ -1,9 +1,6 @@
 import * as _ from 'lodash';
 
 import {
-  HttpHeaders,
-  HttpClient,
-  HttpRequest,
   // required for building
   HttpHeaderResponse,
   HttpProgressEvent,
@@ -30,6 +27,7 @@ import {
   generateQueryParams,
 } from './utils';
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
+import { throwError } from 'rxjs';
 
 export class NgrxJsonApi {
   public headers: HttpHeaders = new HttpHeaders({
@@ -233,7 +231,7 @@ export class NgrxJsonApi {
 
   public operations(document: Document): Observable<any> {
     if (typeof document === undefined) {
-      return Observable.throw('Data not found');
+      return throwError('Data not found');
     }
     let requestOptions = {
       method: 'PATCH',

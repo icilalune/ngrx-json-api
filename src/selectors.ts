@@ -22,7 +22,6 @@ import {
 } from './interfaces';
 import { denormaliseStoreResource, denormaliseStoreResources } from './utils';
 
-
 export function selectNgrxJson() {
   return (state$: Observable<any>) =>
     (<Store<any>>state$).pipe(
@@ -50,7 +49,7 @@ export function getNgrxJsonApiZone(state: any, zoneId: string) {
 
 export function getNgrxJsonApiZones() {
   return (state$: Observable<any>) =>
-    (<Store<any>>state$).let(selectNgrxJson()).map((it: any) => it.zones);
+    (<Store<any>>state$).pipe(selectNgrxJson(),map((it: any) => it.zones));
 }
 
 export function selectStoreQuery(
@@ -106,9 +105,9 @@ export function isApplying(): (
   state: Observable<NgrxJsonApiStore>
 ) => Observable<boolean> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
+    return state$.pipe(map(state => {
       return state && state.isApplying > 0;
-    });
+    }));
   };
 }
 
@@ -116,9 +115,9 @@ export function isCreating(): (
   state: Observable<NgrxJsonApiStore>
 ) => Observable<boolean> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
+    return state$.pipe(map(state => {
       return state && state.isCreating > 0;
-    });
+    }));
   };
 }
 
@@ -126,9 +125,9 @@ export function isReading(): (
   state: Observable<NgrxJsonApiStore>
 ) => Observable<boolean> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
+    return state$.pipe(map(state => {
       return state && state.isReading > 0;
-    });
+    }));
   };
 }
 
@@ -136,9 +135,9 @@ export function isUpdating(): (
   state: Observable<NgrxJsonApiStore>
 ) => Observable<boolean> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
+    return state$.pipe(map(state => {
       return state && state.isUpdating > 0;
-    });
+    }));
   };
 }
 
@@ -146,9 +145,9 @@ export function isDeleting(): (
   state: Observable<NgrxJsonApiStore>
 ) => Observable<boolean> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.map(state => {
+    return state$.pipe(map(state => {
       return state && state.isDeleting > 0;
-    });
+    }));
   };
 }
 

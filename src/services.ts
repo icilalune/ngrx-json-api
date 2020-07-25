@@ -62,7 +62,7 @@ import {
   getDenormalisedValue,
   uuid,
 } from './utils';
-import { combineLatest, finalize, map } from 'rxjs/operators';
+import { combineLatest, filter, finalize, map } from 'rxjs/operators';
 
 export interface FindOptions {
   query: Query;
@@ -197,16 +197,16 @@ export class NgrxJsonApiZoneService {
   public selectStoreResourcesOfType(
     type: string
   ): Observable<NgrxJsonApiStoreResources> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreResourcesOfType(type));
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectStoreResourcesOfType(type)
+    );
   }
 
   public hasQuery(queryId: string): Observable<boolean> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreQuery(queryId))
-      .pipe(
+    return this.store.pipe(
+        selectNgrxJsonApiZone(this.zoneId),
+        selectStoreQuery(queryId),
         map(query => {
           return query !== null && query !== undefined;
         })
@@ -214,10 +214,11 @@ export class NgrxJsonApiZoneService {
   }
 
   public isQueryLoading(queryId: string): Observable<boolean> {
-    return this.store
-      .let(selectNgrxJsonApiZone(this.zoneId))
-      .let(selectStoreQuery(queryId))
-      .pipe(filter(query => !!query), map(query => query.loading));
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectStoreQuery(queryId),
+      filter(query => !!query), map(query => query.loading)
+    );
   }
 
   /**
@@ -234,23 +235,23 @@ export class NgrxJsonApiZoneService {
   }
 
   public isApplying(): Observable<boolean> {
-    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isApplying());
+    return this.store.pipe(selectNgrxJsonApiZone(this.zoneId), isApplying());
   }
 
   public isCreating(): Observable<boolean> {
-    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isCreating());
+    return this.store.pipe(selectNgrxJsonApiZone(this.zoneId), isCreating());
   }
 
   public isUpdating(): Observable<boolean> {
-    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isUpdating());
+    return this.store.pipe(selectNgrxJsonApiZone(this.zoneId), isUpdating());
   }
 
   public isReading(): Observable<boolean> {
-    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isReading());
+    return this.store.pipe(selectNgrxJsonApiZone(this.zoneId), isReading());
   }
 
   public isDeleting(): Observable<boolean> {
-    return this.store.let(selectNgrxJsonApiZone(this.zoneId)).let(isDeleting());
+    return this.store.pipe(selectNgrxJsonApiZone(this.zoneId), isDeleting());
   }
 
   /**
@@ -423,7 +424,7 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
   }
 
   public getAllZones() {
-    return this.store.let(getNgrxJsonApiZones());
+    return this.store.pipe(getNgrxJsonApiZones());
   }
 
   public clearAllZonesReadWriteStatus() {
