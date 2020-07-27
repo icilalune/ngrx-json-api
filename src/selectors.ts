@@ -67,7 +67,7 @@ export function selectStoreResourcesOfType(
 ) => Observable<NgrxJsonApiStoreResources> {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$.pipe(
-      map(state => state.data),
+      map(state => (!!state ? state.data : undefined)),
       map(data => (data ? data[type] : undefined))
     );
   };
