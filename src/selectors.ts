@@ -3,22 +3,20 @@ import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
-import { Store, select } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 
 import {
   ManyQueryResult,
   NGRX_JSON_API_DEFAULT_ZONE,
   NgrxJsonApiState,
   NgrxJsonApiStore,
+  NgrxJsonApiStoreData,
   NgrxJsonApiStoreResources,
   NgrxJsonApiZone,
   OneQueryResult,
-  Resource,
   ResourceIdentifier,
-  NgrxJsonApiStoreQueries,
-  StoreResource,
-  NgrxJsonApiStoreData,
   StoreQuery,
+  StoreResource,
 } from './interfaces';
 import { denormaliseStoreResource, denormaliseStoreResources } from './utils';
 
@@ -49,7 +47,7 @@ export function getNgrxJsonApiZone(state: any, zoneId: string) {
 
 export function getNgrxJsonApiZones() {
   return (state$: Observable<any>) =>
-    (<Store<any>>state$).pipe(selectNgrxJson(),map((it: any) => it.zones));
+    (<Store<any>>state$).pipe(selectNgrxJson(), map((it: any) => it.zones));
 }
 
 export function selectStoreQuery(
@@ -236,7 +234,8 @@ export function getNgrxJsonApiStore(state$: Observable<any>): Observable<any> {
  * deprecated, to not use any longer
  */
 export class NgrxJsonApiSelectors {
-  constructor() {}
+  constructor() {
+  }
 
   public getNgrxJsonApiStore$(): (state$: Observable<any>) => Observable<any> {
     return (state$: Observable<any>): Observable<NgrxJsonApiStore> => {
