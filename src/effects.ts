@@ -181,31 +181,30 @@ export class NgrxJsonApiEffects implements OnDestroy {
     ofType<LocalQueryInitAction>(NgrxJsonApiActionTypes.LOCAL_QUERY_INIT),
     mergeMap((action: LocalQueryInitAction) => {
       const query = action.payload;
-      return this.store
-        .pipe(
-          selectNgrxJsonApiZone(action.zoneId),
-          this.executeLocalQuery(query),
-          map(
-            results =>
-              new LocalQuerySuccessAction(
-                {
-                  jsonApiData: { data: results },
-                  query: query,
-                },
-                action.zoneId
-              )
-          ),
-          catchError(error =>
-            of(
-              new LocalQueryFailAction(
-                this.toErrorPayload(query, error),
-                action.zoneId
-              )
+      return this.store.pipe(
+        selectNgrxJsonApiZone(action.zoneId),
+        this.executeLocalQuery(query),
+        map(
+          results =>
+            new LocalQuerySuccessAction(
+              {
+                jsonApiData: { data: results },
+                query: query,
+              },
+              action.zoneId
             )
-          ),
-          takeUntil(this.localQueryInitEventFor(query)),
-          takeUntil(this.removeQueryEventFor(query))
-        );
+        ),
+        catchError(error =>
+          of(
+            new LocalQueryFailAction(
+              this.toErrorPayload(query, error),
+              action.zoneId
+            )
+          )
+        ),
+        takeUntil(this.localQueryInitEventFor(query)),
+        takeUntil(this.removeQueryEventFor(query))
+      );
     })
   );
 
@@ -219,23 +218,25 @@ export class NgrxJsonApiEffects implements OnDestroy {
           selectStoreResource({ type: query.type, id: query.id })
         );
       } else {
-        selected$ = combineLatest([
-          state$.pipe(selectStoreResourcesOfType(query.type)),
-          state$.pipe(map(it => it.data))
-        ], (resources, storeData) => {
-          return filterResources(
-            resources,
-            storeData,
-            query,
-            this.config.resourceDefinitions,
-            this.config.filteringConfig
-          );
-        });
+        selected$ = combineLatest(
+          [
+            state$.pipe(selectStoreResourcesOfType(query.type)),
+            state$.pipe(map(it => it.data)),
+          ],
+          (resources, storeData) => {
+            return filterResources(
+              resources,
+              storeData,
+              query,
+              this.config.resourceDefinitions,
+              this.config.filteringConfig
+            );
+          }
+        );
       }
       return selected$.pipe(distinctUntilChanged());
     };
   }
-
 
   @Effect()
   deleteResource$ = this.actions$.pipe(
@@ -442,11 +443,10 @@ export class NgrxJsonApiEffects implements OnDestroy {
             throw new Error('unknown state ' + pendingChange.state);
           }
         }
-        return concat(...actions)
-          .pipe(
-            toArray(),
-            map(actions => this.toApplyAction(actions, action.zoneId))
-          );
+        return concat(...actions).pipe(
+          toArray(),
+          map(actions => this.toApplyAction(actions, action.zoneId))
+        );
       }
     ),
     flatMap(actions => actions)
@@ -603,12 +603,6 @@ export class NgrxJsonApiEffects implements OnDestroy {
   }
 
   ngOnDestroy() {}
-
-
-
-
-
-
 
   private toApplyAction(actions: Array<Action>, zoneId: string): any {
     for (let action of actions) {

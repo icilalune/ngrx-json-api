@@ -70,7 +70,9 @@ describe('NgrxJsonApiSelectors', () => {
         'should return undefined for unavailable queries',
         fakeAsync(() => {
           let res;
-          let sub = store.pipe(selectStoreQuery('10')).subscribe(d => (res = d));
+          let sub = store
+            .pipe(selectStoreQuery('10'))
+            .subscribe(d => (res = d));
           tick();
           expect(res).not.toBeDefined();
         })

@@ -60,7 +60,7 @@ describe('NgrxJsonApiEffects', () => {
             'delete',
           ]),
         },
-        provideMockStore({initialState:{}}),
+        provideMockStore({ initialState: {} }),
         provideMockActions(() => actions),
       ],
     });

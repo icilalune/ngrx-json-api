@@ -239,7 +239,6 @@ describe('Json Api Actions', () => {
     let action = new ApiGetSuccessAction({}, 'testZone');
     expect(action.type).toEqual(NgrxJsonApiActionTypes.API_GET_SUCCESS);
     expect(action.payload).toEqual({});
-
   });
 
   it('should generate an api read fail action using apiReadFail', () => {

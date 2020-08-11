@@ -162,7 +162,7 @@ export class NgrxJsonApiZoneService {
     return this.store.pipe(
       selectNgrxJsonApiZone(this.zoneId),
       selectManyQueryResult(queryId, denormalize)
-  );
+    );
   }
 
   /**
@@ -205,19 +205,20 @@ export class NgrxJsonApiZoneService {
 
   public hasQuery(queryId: string): Observable<boolean> {
     return this.store.pipe(
-        selectNgrxJsonApiZone(this.zoneId),
-        selectStoreQuery(queryId),
-        map(query => {
-          return query !== null && query !== undefined;
-        })
-      );
+      selectNgrxJsonApiZone(this.zoneId),
+      selectStoreQuery(queryId),
+      map(query => {
+        return query !== null && query !== undefined;
+      })
+    );
   }
 
   public isQueryLoading(queryId: string): Observable<boolean> {
     return this.store.pipe(
       selectNgrxJsonApiZone(this.zoneId),
       selectStoreQuery(queryId),
-      filter(query => !!query), map(query => query.loading)
+      filter(query => !!query),
+      map(query => query.loading)
     );
   }
 
@@ -478,9 +479,9 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     } else {
       queryResult$ = this.selectOneResults(newQuery.queryId, denormalise);
     }
-    return <Observable<QueryResult>>queryResult$.pipe(finalize(() =>
-      this.removeQuery(newQuery.queryId)
-    ));
+    return <Observable<QueryResult>>queryResult$.pipe(
+      finalize(() => this.removeQuery(newQuery.queryId))
+    );
   }
 
   private uuid() {
@@ -525,23 +526,31 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     storeResource$: Observable<StoreResource | StoreResource[]>,
     zoneId: string = this.zoneId
   ): Observable<StoreResource | StoreResource[]> {
-    return storeResource$.pipe(combineLatest(
-      this.store.pipe(selectNgrxJsonApiZone(zoneId), map(state => state.data)),
-      (
-        storeResource: StoreResource | StoreResource[],
-        storeData: NgrxJsonApiStoreData
-      ) => {
-        if (_.isArray(storeResource)) {
-          return denormaliseStoreResources(
-            storeResource as Array<StoreResource>,
-            storeData
-          );
-        } else {
-          let resource = storeResource as StoreResource;
-          return denormaliseStoreResource(resource, storeData) as StoreResource;
+    return storeResource$.pipe(
+      combineLatest(
+        this.store.pipe(
+          selectNgrxJsonApiZone(zoneId),
+          map(state => state.data)
+        ),
+        (
+          storeResource: StoreResource | StoreResource[],
+          storeData: NgrxJsonApiStoreData
+        ) => {
+          if (_.isArray(storeResource)) {
+            return denormaliseStoreResources(
+              storeResource as Array<StoreResource>,
+              storeData
+            );
+          } else {
+            let resource = storeResource as StoreResource;
+            return denormaliseStoreResource(
+              resource,
+              storeData
+            ) as StoreResource;
+          }
         }
-      }
-    ));
+      )
+    );
   }
 
   public getDenormalisedPath(path: string, resourceType: string): string {
