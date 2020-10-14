@@ -486,6 +486,7 @@ export class NgrxJsonApiEffects implements OnDestroy {
               jsonAPIOperation = 'add';
               ref = {
                 type: pendingChange.type,
+                id: pendingChange.id,
               };
               break;
             }
