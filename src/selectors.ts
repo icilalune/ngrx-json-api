@@ -89,6 +89,7 @@ export function selectStoreResource(identifier: ResourceIdentifier) {
 export function selectStoreResources(identifiers: ResourceIdentifier[]) {
   return (state$: Observable<NgrxJsonApiStore>) => {
     return state$.pipe(
+      filter(state => !!state),
       map(state => state.data),
       map(data => {
         return identifiers.map(identifier => {
