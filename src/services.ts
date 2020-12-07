@@ -68,6 +68,7 @@ export interface FindOptions {
   query: Query;
   fromServer?: boolean;
   denormalise?: boolean;
+  zone?: string;
 }
 
 export interface PutQueryOptions {
@@ -472,15 +473,25 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
       newQuery = query;
     }
 
-    this.putQuery({ query: newQuery, fromServer });
+    const zone: string = options.zone
+      ? options.zone
+      : NGRX_JSON_API_DEFAULT_ZONE;
+
+    this.getZone(zone).putQuery({ query: newQuery, fromServer });
     let queryResult$: Observable<QueryResult>;
     if (multi) {
-      queryResult$ = this.selectManyResults(newQuery.queryId, denormalise);
+      queryResult$ = this.getZone(zone).selectManyResults(
+        newQuery.queryId,
+        denormalise
+      );
     } else {
-      queryResult$ = this.selectOneResults(newQuery.queryId, denormalise);
+      queryResult$ = this.getZone(zone).selectOneResults(
+        newQuery.queryId,
+        denormalise
+      );
     }
     return <Observable<QueryResult>>queryResult$.pipe(
-      finalize(() => this.removeQuery(newQuery.queryId))
+      finalize(() => this.getZone(zone).removeQuery(newQuery.queryId))
     );
   }
 
