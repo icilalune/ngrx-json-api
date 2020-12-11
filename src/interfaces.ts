@@ -130,7 +130,7 @@ export interface NgrxJsonApiFilteringConfig {
 
 export interface NgrxJsonApiUrlBuilder {
   generateFilteringQueryParams?: (params: Array<FilteringParam>) => string;
-  generateFieldsQueryParams?: (params: Array<string>) => string;
+  generateFieldsQueryParams?: (params: QueryParamsFields) => string;
   generateIncludedQueryParams?: (params: Array<string>) => string;
   generateSortingQueryParams?: (params: Array<SortingParam>) => string;
   generateQueryParams?: (...params: Array<string>) => string;
@@ -181,11 +181,15 @@ export interface Query {
   params?: QueryParams;
 }
 
+export interface QueryParamsFields {
+  [contentType: string]: Array<string>;
+}
+
 export interface QueryParams {
   filtering?: Array<FilteringParam>;
   sorting?: Array<SortingParam>;
   include?: Array<string>;
-  fields?: Array<string>;
+  fields?: QueryParamsFields;
   offset?: number;
   limit?: number;
   page?: QueryPageParams;

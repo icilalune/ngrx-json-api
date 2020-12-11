@@ -16,6 +16,7 @@ import {
   OperationType,
   Payload,
   Query,
+  QueryParamsFields,
   Resource,
   ResourceDefinition,
   ResourceError,
@@ -72,7 +73,7 @@ export const denormaliseObject = (
             bag,
             denormalizePersisted
           );
-        } else if ((data as Array<ResourceIdentifier>).length == 0) {
+        } else if ((data as Array<ResourceIdentifier>).length === 0) {
           denormalizedRelation = data;
         } else {
           // many relation
@@ -979,12 +980,19 @@ export const generateIncludedQueryParams = (
   return 'include=' + included.join();
 };
 
-export const generateFieldsQueryParams = (fields: Array<string>): string => {
-  if (_.isEmpty(fields)) {
+export const generateFieldsQueryParams = (
+  queryParamsFields: QueryParamsFields
+): string => {
+  if (_.isEmpty(queryParamsFields)) {
     return '';
   }
 
-  return 'fields=' + fields.join();
+  let fieldsQuery: string[] = [];
+  Object.keys(queryParamsFields).forEach(type => {
+    const fields: string[] = queryParamsFields[type];
+    fieldsQuery.push('fields[' + type + ']=' + fields.join());
+  });
+  return fieldsQuery.join('&');
 };
 
 export const generateFilteringQueryParams = (
@@ -1405,7 +1413,7 @@ function collectPendingChange(
             .filter(
               relIncludeElem =>
                 relIncludeElem.length >= 2 &&
-                relIncludeElem[0] == relationshipName
+                relIncludeElem[0] === relationshipName
             )
             .forEach(relIncludeElem =>
               relationInclude.push(relIncludeElem.slice(1))
