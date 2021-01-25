@@ -568,6 +568,7 @@ export const clearQueryResult = (
 ) => {
   let newQuery = { ...storeData[queryId] };
   delete newQuery.resultIds;
+  delete newQuery.allResultIds;
   delete newQuery.errors;
   delete newQuery.meta;
   delete newQuery.links;
@@ -718,10 +719,20 @@ export const updateQueryResults = (
 ): NgrxJsonApiStoreQueries => {
   let storeQuery: StoreQuery = storeQueries[queryId];
   if (storeQuery) {
-    let data = _.isArray(document.data) ? document.data : [document.data];
-    let newQueryStore = {
+    const data = _.isArray(document.data) ? document.data : [document.data];
+
+    const allResultIds: ResourceIdentifier[] = _.uniqWith(
+      [
+        ...(storeQuery.allResultIds ? storeQuery.allResultIds : []),
+        ...data.map(it => (it ? toResourceIdentifier(it) : [])),
+      ],
+      _.isEqual
+    );
+
+    const newQueryStore = {
       ...storeQuery,
-      resultIds: data.map(it => (it ? toResourceIdentifier(it) : [])),
+      resultIds: [...data.map(it => (it ? toResourceIdentifier(it) : []))],
+      allResultIds,
       meta: document.meta,
       links: document.links,
       loading: false,
@@ -1170,6 +1181,11 @@ const collectQueryResults = (state: NgrxJsonApiStore, usedResources: any) => {
       let query = state.queries[queryName];
       if (query.resultIds) {
         for (let resultId of query.resultIds) {
+          usedResources[toKey(resultId)] = true;
+        }
+      }
+      if (query.allResultIds) {
+        for (let resultId of query.allResultIds) {
           usedResources[toKey(resultId)] = true;
         }
       }

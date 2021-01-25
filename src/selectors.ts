@@ -163,6 +163,41 @@ export function isDeleting(): (
   };
 }
 
+export function selectAllQueryResult(
+  queryId: string,
+  denormalize?: boolean
+): (state: Observable<NgrxJsonApiStore>) => Observable<ManyQueryResult> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.pipe(
+      map(state => {
+        let storeQuery = state && state.queries ? state.queries[queryId] : null;
+        if (!storeQuery) {
+          return undefined;
+        }
+
+        if (_.isEmpty(storeQuery.allResultIds)) {
+          let queryResult: ManyQueryResult = {
+            ...storeQuery,
+            data: _.isUndefined(storeQuery.allResultIds) ? undefined : [],
+          };
+          return queryResult;
+        } else {
+          let results = storeQuery.allResultIds.map(
+            id => (state.data[id.type] ? state.data[id.type][id.id] : undefined)
+          );
+          if (denormalize) {
+            results = denormaliseStoreResources(results, state.data);
+          }
+          return {
+            ...storeQuery,
+            data: results as Array<StoreResource>,
+          };
+        }
+      })
+    );
+  };
+}
+
 export function selectManyQueryResult(
   queryId: string,
   denormalize?: boolean

@@ -7,8 +7,7 @@ import * as _ from 'lodash';
 import { Action, Store } from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 
-import { Observable } from 'rxjs';
-import { combineLatest, concat, of } from 'rxjs';
+import { combineLatest, concat, Observable, of } from 'rxjs';
 
 import {
   catchError,
@@ -17,9 +16,9 @@ import {
   flatMap,
   map,
   mergeMap,
+  takeUntil,
   toArray,
   withLatestFrom,
-  takeUntil,
 } from 'rxjs/operators';
 import {
   ApiApplyFailAction,
@@ -55,13 +54,13 @@ import {
 import {
   NgrxJsonApiConfig,
   NgrxJsonApiStore,
-  NgrxJsonApiStoreData,
-  NgrxJsonApiStoreResources,
   OperationType,
   Payload,
   Query,
   Resource,
   ResourceError,
+  ResourceIdentifier,
+  StoreQuery,
   StoreResource,
 } from './interfaces';
 import {
@@ -293,22 +292,23 @@ export class NgrxJsonApiEffects implements OnDestroy {
       let actions = [];
       for (let queryId in state.queries) {
         if (state.queries.hasOwnProperty(queryId)) {
-          let query = state.queries[queryId];
+          let query: StoreQuery = state.queries[queryId];
           if (query.resultIds) {
-            let needsRefresh =
-              _.findIndex(query.resultIds, function(o) {
-                return _.isEqual(id, o);
-              }) !== -1;
-
-            let sameIdRequested =
-              query.query.id === id.id && query.query.type === id.type;
-            if (sameIdRequested && (needsRefresh || _.isEmpty(query.errors))) {
-              throw new Error(
-                'store is in invalid state, queries for deleted' +
-                  ' resource should have been emptied and marked with 404 error'
-              );
+            let needsRefresh = this.checkNeedRefresh(
+              query,
+              query.resultIds,
+              id
+            );
+            if (needsRefresh) {
+              actions.push(new ApiQueryRefreshAction(queryId, action.zoneId));
             }
-
+          }
+          if (query.allResultIds) {
+            let needsRefresh = this.checkNeedRefresh(
+              query,
+              query.allResultIds,
+              id
+            );
             if (needsRefresh) {
               actions.push(new ApiQueryRefreshAction(queryId, action.zoneId));
             }
@@ -319,6 +319,27 @@ export class NgrxJsonApiEffects implements OnDestroy {
     }),
     flatMap(actions => of(...actions))
   );
+
+  private checkNeedRefresh(
+    query: StoreQuery,
+    resultIds: ResourceIdentifier[],
+    id: ResourceIdentifier
+  ): boolean {
+    let needsRefresh =
+      _.findIndex(resultIds, function(o) {
+        return _.isEqual(id, o);
+      }) !== -1;
+
+    let sameIdRequested =
+      query.query.id === id.id && query.query.type === id.type;
+    if (sameIdRequested && (needsRefresh || _.isEmpty(query.errors))) {
+      throw new Error(
+        'store is in invalid state, queries for deleted' +
+          ' resource should have been emptied and marked with 404 error'
+      );
+    }
+    return needsRefresh;
+  }
 
   private handlePendingCreate(pendingChange: StoreResource, zoneId: string) {
     let payload: Payload = this.generatePayload(pendingChange, 'POST');

@@ -1,24 +1,25 @@
 import * as _ from 'lodash';
 
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 
 import { Store } from '@ngrx/store';
 
 import {
+  getNgrxJsonApiZones,
+  isApplying,
+  isCreating,
+  isDeleting,
+  isReading,
+  isUpdating,
+  selectAllQueryResult,
   selectManyQueryResult,
   selectNgrxJsonApiDefaultZone,
   selectNgrxJsonApiZone,
   selectOneQueryResult,
+  selectStoreQuery,
   selectStoreResource,
   selectStoreResources,
   selectStoreResourcesOfType,
-  isApplying,
-  selectStoreQuery,
-  getNgrxJsonApiZones,
-  isCreating,
-  isUpdating,
-  isReading,
-  isDeleting,
 } from './selectors';
 import {
   ApiApplyInitAction,
@@ -62,7 +63,7 @@ import {
   getDenormalisedValue,
   uuid,
 } from './utils';
-import { combineLatest, filter, finalize, map } from 'rxjs/operators';
+import { filter, finalize, map } from 'rxjs/operators';
 
 export interface FindOptions {
   query: Query;
@@ -163,6 +164,23 @@ export class NgrxJsonApiZoneService {
     return this.store.pipe(
       selectNgrxJsonApiZone(this.zoneId),
       selectManyQueryResult(queryId, denormalize)
+    );
+  }
+
+  /**
+   * Selects the data of the given query.
+   *
+   * @param queryId
+   * @returns observable holding the data as array of resources with all data
+   * retrieved by the query, including paging.
+   */
+  public selectAllResults(
+    queryId: string,
+    denormalize = false
+  ): Observable<ManyQueryResult> {
+    return this.store.pipe(
+      selectNgrxJsonApiZone(this.zoneId),
+      selectAllQueryResult(queryId, denormalize)
     );
   }
 
@@ -441,6 +459,10 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     return <Observable<ManyQueryResult>>this.findInternal(options, true);
   }
 
+  public findAll(options: FindOptions): Observable<ManyQueryResult> {
+    return <Observable<ManyQueryResult>>this.findInternal(options, true, true);
+  }
+
   public get storeSnapshot() {
     if (!this._storeSnapshot) {
       this.store
@@ -456,7 +478,8 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
 
   private findInternal(
     options: FindOptions,
-    multi: boolean
+    multi: boolean,
+    all = false
   ): Observable<QueryResult> {
     let query = options.query;
     let fromServer = _.isUndefined(options.fromServer)
@@ -479,7 +502,12 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
 
     this.getZone(zone).putQuery({ query: newQuery, fromServer });
     let queryResult$: Observable<QueryResult>;
-    if (multi) {
+    if (all) {
+      queryResult$ = this.getZone(zone).selectAllResults(
+        newQuery.queryId,
+        denormalise
+      );
+    } else if (multi) {
       queryResult$ = this.getZone(zone).selectManyResults(
         newQuery.queryId,
         denormalise
@@ -537,16 +565,19 @@ export class NgrxJsonApiService extends NgrxJsonApiZoneService {
     storeResource$: Observable<StoreResource | StoreResource[]>,
     zoneId: string = this.zoneId
   ): Observable<StoreResource | StoreResource[]> {
-    return storeResource$.pipe(
-      combineLatest(
-        this.store.pipe(
-          selectNgrxJsonApiZone(zoneId),
-          map(state => state.data)
-        ),
-        (
-          storeResource: StoreResource | StoreResource[],
-          storeData: NgrxJsonApiStoreData
-        ) => {
+    return combineLatest([
+      storeResource$,
+      this.store.pipe(
+        selectNgrxJsonApiZone(zoneId),
+        filter(state => !!state),
+        map(state => state.data)
+      ),
+    ]).pipe(
+      map(
+        ([storeResource, storeData]: [
+          StoreResource | StoreResource[],
+          NgrxJsonApiStoreData
+        ]) => {
           if (_.isArray(storeResource)) {
             return denormaliseStoreResources(
               storeResource as Array<StoreResource>,

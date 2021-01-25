@@ -197,6 +197,7 @@ export interface QueryParams {
 
 export interface QueryPageParams {
   [id: string]: string | number;
+
   offset?: number;
   limit?: number;
   number?: number;
@@ -299,9 +300,16 @@ export interface StoreQuery {
   loading: boolean;
 
   /**
-   * Ordered list of result identifiers that can be used to fetch the actual resources from the store.
+   * Ordered list of result identifiers that can be used
+   * to fetch the actual resources from the store.
    */
   resultIds?: Array<ResourceIdentifier>;
+
+  /**
+   * Ordered list of result identifiers that can be used
+   * to fetch the actual resources from the store.
+   */
+  allResultIds?: Array<ResourceIdentifier>;
 
   /**
    * Meta information obtained along with the results
@@ -314,7 +322,8 @@ export interface StoreQuery {
   links?: any;
 
   /**
-   * Errors received from the server after attempting to perform a GET request. Errors related to POST, PATCH and
+   * Errors received from the server after attempting
+   * to perform a GET request. Errors related to POST, PATCH and
    * DELETE are added to StoreResource.
    */
   errors: Array<ResourceError>;
