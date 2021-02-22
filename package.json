@@ -41,8 +41,6 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@ngrx/effects": "^11.0.0",
-    "@ngrx/store": "^9.0.0",
     "deep-object-diff": "^1.1.0",
     "rxjs": "^6.5.3"
   },
@@ -55,8 +53,8 @@
     "@angular/platform-browser": "^11.2.1",
     "@angular/platform-browser-dynamic": "^11.2.1",
     "@angular/platform-server": "^11.2.1",
-    "@ngrx/effects": "^9.1.0",
-    "@ngrx/store": "^9.1.0",
+    "@ngrx/effects": "^10.1.2",
+    "@ngrx/store": "^10.1.2",
     "@types/deep-freeze": "^0.1.1",
     "@types/fs-extra": "^5.0.0",
     "@types/glob": "^5.0.35",
