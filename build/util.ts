@@ -135,12 +135,9 @@ export function createBuilder(tasks: TaskDef[]) {
 }
 
 export function flatMap<K, J>(list: K[], mapFn: (item: K) => J[]): J[] {
-  return list.reduce(
-    function(newList, nextItem) {
-      return [...newList, ...mapFn(nextItem)];
-    },
-    [] as J[]
-  );
+  return list.reduce(function(newList, nextItem) {
+    return [...newList, ...mapFn(nextItem)];
+  }, [] as J[]);
 }
 
 export function getTopLevelPackages(config: Config) {

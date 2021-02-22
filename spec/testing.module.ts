@@ -16,7 +16,10 @@ let queries = {
     query: {
       queryId: '1',
     },
-    resultIds: [{ type: 'Article', id: '1' }, { type: 'Article', id: '2' }],
+    resultIds: [
+      { type: 'Article', id: '1' },
+      { type: 'Article', id: '2' },
+    ],
   },
   '2': {
     query: {
@@ -34,7 +37,10 @@ let queries = {
     query: {
       queryId: '1',
     },
-    resultIds: [{ type: 'Article', id: '10' }, { type: 'Article', id: '20' }],
+    resultIds: [
+      { type: 'Article', id: '10' },
+      { type: 'Article', id: '20' },
+    ],
   },
 };
 

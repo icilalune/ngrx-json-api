@@ -47,7 +47,10 @@ export function getNgrxJsonApiZone(state: any, zoneId: string) {
 
 export function getNgrxJsonApiZones() {
   return (state$: Observable<any>) =>
-    (<Store<any>>state$).pipe(selectNgrxJson(), map((it: any) => it.zones));
+    (<Store<any>>state$).pipe(
+      selectNgrxJson(),
+      map((it: any) => it.zones)
+    );
 }
 
 export function selectStoreQuery(
@@ -182,8 +185,8 @@ export function selectAllQueryResult(
           };
           return queryResult;
         } else {
-          let results = storeQuery.allResultIds.map(
-            id => (state.data[id.type] ? state.data[id.type][id.id] : undefined)
+          let results = storeQuery.allResultIds.map(id =>
+            state.data[id.type] ? state.data[id.type][id.id] : undefined
           );
           if (denormalize) {
             results = denormaliseStoreResources(results, state.data);
@@ -217,8 +220,8 @@ export function selectManyQueryResult(
           };
           return queryResult;
         } else {
-          let results = storeQuery.resultIds.map(
-            id => (state.data[id.type] ? state.data[id.type][id.id] : undefined)
+          let results = storeQuery.resultIds.map(id =>
+            state.data[id.type] ? state.data[id.type][id.id] : undefined
           );
           if (denormalize) {
             results = denormaliseStoreResources(results, state.data);

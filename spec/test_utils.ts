@@ -143,7 +143,10 @@ export const testPayload = {
       },
       relationships: {
         blogs: {
-          data: [{ type: 'Blog', id: '1' }, { type: 'Blog', id: '3' }],
+          data: [
+            { type: 'Blog', id: '1' },
+            { type: 'Blog', id: '3' },
+          ],
         },
         profile: {
           data: { type: 'Profile', id: '1' },

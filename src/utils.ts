@@ -884,9 +884,8 @@ export const filterResources = (
 
         if (!_.isUndefined(filteringConfig)) {
           pathSeparator = <string>_.get(filteringConfig, 'pathSeparator');
-          filteringOperators = <Array<FilteringOperator>>_.get(
-            filteringConfig,
-            'filteringOperators'
+          filteringOperators = <Array<FilteringOperator>>(
+            _.get(filteringConfig, 'filteringOperators')
           );
         }
         // resource type and attribute
