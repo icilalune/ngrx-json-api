@@ -41,6 +41,9 @@
   ],
   "angularCompilerOptions": {
     "strictMetadataEmit": true,
-    "enableIvy": false
+    "enableIvy": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   }
 }
