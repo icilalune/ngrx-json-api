@@ -53,14 +53,19 @@ export function getNgrxJsonApiZones() {
     );
 }
 
+export function selectHasStoreQuery(
+  queryId: string
+): (state: Observable<NgrxJsonApiStore>) => Observable<boolean> {
+  return (state$: Observable<NgrxJsonApiStore>) => {
+    return state$.pipe(map(state => state?.queries?.hasOwnProperty(queryId)));
+  };
+}
+
 export function selectStoreQuery(
   queryId: string
 ): (state: Observable<NgrxJsonApiStore>) => Observable<StoreQuery> {
   return (state$: Observable<NgrxJsonApiStore>) => {
-    return state$.pipe(
-      filter(state => !!state?.queries && !!state?.queries[queryId]),
-      map(state => state.queries[queryId])
-    );
+    return state$.pipe(map(state => state.queries[queryId]));
   };
 }
 

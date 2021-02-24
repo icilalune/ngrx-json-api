@@ -11,7 +11,7 @@ import {
   isDeleting,
   isReading,
   isUpdating,
-  selectAllQueryResult,
+  selectAllQueryResult, selectHasStoreQuery,
   selectManyQueryResult,
   selectNgrxJsonApiDefaultZone,
   selectNgrxJsonApiZone,
@@ -225,9 +225,9 @@ export class NgrxJsonApiZoneService {
   public hasQuery(queryId: string): Observable<boolean> {
     return this.store.pipe(
       selectNgrxJsonApiZone(this.zoneId),
-      selectStoreQuery(queryId),
-      map(query => {
-        return query !== null && query !== undefined;
+      selectHasStoreQuery(queryId),
+      map(hasQuery => {
+        return hasQuery === true;
       })
     );
   }
